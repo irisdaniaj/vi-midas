@@ -40,7 +40,12 @@ Following the factor model approach, we characterize each of the microbial speci
 ## Hyperparameter tuning 
 Here we evaluate the randomly selected sets of hyperparameters of the MEM model in terms of the **out of sample log-likelihood predictive density (LLPD)**. Supporting files for the step:
 
-+ **hyperparameter_tuning_fit.py**
+
+```
+python hyperparamter_tuning_fit.py  l m_seed sp_mean sp_var h_prop uid nsample_o sid 
+```
+The script performs hyperparameter tuning for previously mention Stan models. Results are saved in `results/hyperparamter`
+
 + **hyperparameter_tuning_analysis.ipynb**
 
 
@@ -73,10 +78,6 @@ We evaluate the component excluded generative model by computing the variational
 ## Model sensitivity to initialization
 Maximizing the ELBO is a non-convex optimization problem. The parameters estimate are sensitive to the choice of their initial estimates. Hence, we further evaluate the chosen set of hyperparameters for 50 random initialization and then select the best model out of it. Supporting files for the step:
 
-```
-python hyperparamter_tuning_fit.py  l m_seed sp_mean sp_var h_prop uid nsample_o sid 
-```
-The script performs hyperparameter tuning for previously mention Stan models. Results are saved in `results/hyperparamter`
 + **model_sensitivity_analysis.ipynb**
 
 We evaluate the MEM with different initialization by computing the variational posterior on full data and evaluating the output in terms of **LLPD** using the python script **model_sensitivity_fit.py** for the selected hyperparameters. Please follow the detailed instruction in the jupyter notebook file **model_sensitivity_analysis.ipynb** to understand the procedure and select the model with the highest LLPD on full data. 
