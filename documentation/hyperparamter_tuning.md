@@ -1,7 +1,3 @@
-Here’s a sample **README.md** for the script, structured to explain the purpose, inputs, arguments, outputs, and where the results are saved:
-
----
-
 # Hyperparameter Tuning Script
 
 ## Overview
@@ -76,20 +72,4 @@ The script generates three key output files saved in the `results/hyperparameter
 ## Error Handling
 - If a runtime error occurs (e.g., `ZeroDivisionError`), the script saves a placeholder result in the `.pkl` file to indicate an issue.
 
----
 
-## Dependencies
-The script requires the following Python packages:
-- `pystan`
-- `numpy`
-- `pandas`
-- `scipy`
-
-Ensure dependencies are installed before running:
-```bash
-pip install -r requirements.txt
-```
-
----
-
-Feel free to modify or expand this as needed based on your audience or project requirements! Let me know if you'd like further adjustments.
