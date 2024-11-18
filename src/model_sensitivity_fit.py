@@ -46,7 +46,7 @@ Y = Y[:,range(2,Y.shape[1])]
 Y = Y.astype('int')
 
 ## Computation of the geometric mean:  
-import sub_fun as sf
+import src.sub_fun as sf
 errx = 1e-5
 delta  = np.empty(Y.shape[0])  
 for i in range(Y.shape[0]):
@@ -169,7 +169,7 @@ try:
     
     
     # variance estimate of  rge model parameters
-    import vb_stan as vbfun
+    import utils.vb_stan as vbfun
     parma_sample  = vbfun.vb_extract_sample(results)
     parma_sample  =  dict(parma_sample)
     

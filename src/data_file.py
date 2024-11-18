@@ -1,7 +1,7 @@
 
 import pandas as pd
 import numpy as np
-import sub_fun as sf
+import src.sub_fun as sf
 import pickle
 import scipy.cluster.hierarchy as sch
 import copy

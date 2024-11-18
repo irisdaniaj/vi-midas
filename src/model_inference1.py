@@ -22,8 +22,8 @@ import pystan
 import pickle
 import scipy.cluster.hierarchy as sch
 import copy
-import vb_stan as vbfun
-import sub_fun as sf
+import utils.vb_stan as vbfun
+import src.sub_fun as sf
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.ticker as ticker
 import copy 
@@ -117,7 +117,7 @@ vals, counts = np.unique(ind_var, return_counts=True)
 tem_ind1 = (-1*counts).argsort()
 tem_val = vals[tem_ind1][range(np.min([np.sum(counts > 10),tem_ind1.shape[0]]))]
 tmp = np.setdiff1d(np.unique(ind_var), tem_val)
-import sub_fun as sf
+import src.sub_fun as sf
 tmp = sf.return_indices_of_a(tmp, ind_var)
 ind_var[tmp] = "Other" 
 tax_name.iloc[:,i] = ind_var

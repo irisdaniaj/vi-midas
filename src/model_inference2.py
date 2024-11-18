@@ -22,8 +22,8 @@ import pystan
 import pickle
 import scipy.cluster.hierarchy as sch
 import copy
-import vb_stan as vbfun
-import sub_fun as sf
+import utils.vb_stan as vbfun
+import src.sub_fun as sf
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.ticker as ticker
 import copy 
