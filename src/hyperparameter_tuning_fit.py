@@ -158,7 +158,7 @@ try:
                     diagnostic_file = diag_file_o, eval_elbo = 50, \
                     output_samples = nsample_o)
     # save model output 
-    fname_o = str(uid)+ '_' + str(sid) + '_' + 'model_nb.pkl' 
+    fname_o = os.path.join(output_dir, f"{uid}_{sid}_model_nb.pkl")
     with open(fname_o, 'wb') as f:
         pickle.dump(NB_vb, f)
     with open(fname_o, 'rb') as f:
