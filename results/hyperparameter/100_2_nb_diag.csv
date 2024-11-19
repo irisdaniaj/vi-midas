@@ -14,21 +14,21 @@
 # eta=1
 # tol_rel_obj=0.01
 # algorithm=meanfield
-# sample_file=results/hyperparameter/100_2_nb_sample.csv
-# diagnostic_file=results/hyperparameter/100_2_nb_diag.csv
+# sample_file=/home/irisdaniaj/workspace/vi-midas/results/hyperparameter/100_2_nb_sample.csv
+# diagnostic_file=/home/irisdaniaj/workspace/vi-midas/results/hyperparameter/100_2_nb_diag.csv
 # append_samples=0
 #
 # iter,time_in_seconds,ELBO
-50,53.072,-1.44996e+06
-100,106.389,-983387
-150,159.643,-833143
-200,212.853,-767465
-250,266.082,-734090
-300,319.209,-711350
-350,372.392,-695604
-400,425.627,-683695
-450,478.969,-674475
-500,532.128,-666865
-550,585.346,-660596
-600,638.714,-655280
-650,691.966,-650702
+50,42.4251,-1.44806e+06
+100,84.7798,-981568
+150,127.237,-832056
+200,169.601,-766888
+250,211.918,-733574
+300,254.199,-710927
+350,296.52,-695214
+400,338.667,-683334
+450,381.449,-674121
+500,424.291,-666529
+550,466.378,-660270
+600,508.467,-654964
+650,550.549,-650415
