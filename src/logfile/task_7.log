@@ -1,0 +1,5 @@
+['hyperparameter_tuning_fit.py', '42', '0.23214285714285715', '500', '0.1', '4284064', '200', '7']
+Traceback (most recent call last):
+  File "hyperparameter_tuning_fit.py", line 30, in <module>
+    [l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o, sid] = map(float, sys.argv[1:])
+ValueError: not enough values to unpack (expected 8, got 7)
