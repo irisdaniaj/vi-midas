@@ -24,7 +24,11 @@ import vb_stan as vbfun
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 model_path = os.path.join(base_dir, "stan_model")
 output_dir = os.path.join(base_dir, "results/hyperparameter/")
+diag_dir = os.path.join(output_dir, "diagnostics/")
+model_dir = os.path.join(output_dir, "models/")
 os.makedirs(output_dir, exist_ok=True)
+os.makedirs(diag_dir, exist_ok=True)
+os.makedirs(model_dir, exist_ok=True)
 # Get setting parameter for running the script
 print(sys.argv)
 [l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o, sid] = map(float, sys.argv[1:])
@@ -142,9 +146,9 @@ model_NB = open(stan_mod, 'r').read()     # read model file
 mod = pystan.StanModel(model_code=model_NB) # model compile 
 
 # model output file 
-sample_file_o = os.path.join(output_dir, f"{uid}_{sid}_nb_sample.csv")
-diag_file_o = os.path.join(output_dir, f"{uid}_{sid}_nb_diag.csv")
-model_output_file = os.path.join(output_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
+sample_file_o = os.path.join(diag_dir, f"{uid}_{sid}_nb_sample.csv")
+diag_file_o = os.path.join(diag_dir, f"{uid}_{sid}_nb_diag.csv")
+model_output_file = os.path.join(model_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
 
 
 ## check for model fit error ; try catch and then proceed with evaluation 

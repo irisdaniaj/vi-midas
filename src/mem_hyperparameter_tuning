@@ -1,35 +1,39 @@
 #!/bin/bash
-#SBATCH --gres=gpu:1
-#SBATCH --array=0-9%10  # Run up to 10 jobs in parallel
+#SBATCH --gres=gpu:2
+#SBATCH --array=0-49%10  # Run up to 10 jobs in parallel maybe put a 249 here? idk but it fails but try again 
 #SBATCH --job-name=hyperparam_tuning
 #SBATCH --output=logs/slurm-%A_%a.out
 #SBATCH --error=logs/slurm-%A_%a.err
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=2
-#SBATCH --mem=4G
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=10G
 #SBATCH --time=2:00:00
 
 # Load the module system
 source /etc/profile
 source /usr/share/Modules/init/bash
-module purge
-module load gcc python3
 
 # Create logfile directory
-mkdir -p logfile
+mkdir -p ../results/hyperparameter/logfile/
 
 # Read hyperparameters from CSV
-PARAMS_FILE="hyperparams.csv"
-TASK_ID=${SLURM_ARRAY_TASK_ID}
-PARAM_LINE=$(sed -n "$((TASK_ID + 2))p" $PARAMS_FILE)
+PARAMS_FILE="../results/hyperparameter/hyperparams.csv"
+TASK_ID=$((SLURM_ARRAY_TASK_ID + OFFSET * 10))
+ROW_ID=$((TASK_ID / 5))  # Determines which hyperparameter combination (0-49)
+SEED=$((TASK_ID % 5))    # Determines the seed (0-4 for each combination)
+
+# Read the specific row from the CSV
+PARAM_LINE=$(sed -n "$((ROW_ID + 2))p" $PARAMS_FILE)
 IFS=',' read -r LAMBDA THETA K <<<$(echo $PARAM_LINE | awk -F, '{print $2, $3, $4}')
 
 # Fixed arguments
-M_SEED=42
 H_PROP=0.1
-UNIQUE_ID=0
 NSAMPLE_O=200
-SID=$TASK_ID
+UNIQUE_ID=$ROW_ID
+SID=$SEED
 
-# Run the Python script
-OMP_NUM_THREADS=1 python3 hyperparameter_tuning_fit.py $K $M_SEED $LAMBDA $THETA $H_PROP $UID $NSAMPLE_O $SID > logfile/task_${TASK_ID}.log 2>&1
+# Log task information
+echo "Running task with ROW_ID=$ROW_ID, SEED=$SEED, LAMBDA=$LAMBDA, THETA=$THETA, K=$K"
+
+# Run the Python script with the calculated parameters
+OMP_NUM_THREADS=1 python3 hyperparameter_tuning_fit.py $K $SEED $LAMBDA $THETA $H_PROP $UNIQUE_ID $NSAMPLE_O $SID > ../results/hyperparameter/logfile/task_${TASK_ID}.log 2>&1

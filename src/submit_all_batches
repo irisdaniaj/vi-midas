@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for OFFSET in {0..24}; do
+    sbatch --export=OFFSET=$OFFSET mem_hyperparameter_tuning
+done
