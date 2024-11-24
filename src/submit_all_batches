@@ -1,5 +1,12 @@
 #!/bin/bash
+#SBATCH --gres=gpu:2  # Request 2 GPUs
+#SBATCH --mem=10G   
 
-for OFFSET in {0..24}; do
-    sbatch --export=OFFSET=$OFFSET mem_hyperparameter_tuning
+source $(conda info --base)/etc/profile.d/conda.sh
+conda activate vim
+
+for i in {0..24}; do
+  echo "Submitting job batch $i with OFFSET=$i"
+  sbatch --array=0-9%10 --export=ALL,OFFSET=$i mem_hyperparameter_tuning
+  sleep 20 # Optional: Add a small delay to avoid overwhelming the scheduler
 done
