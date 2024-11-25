@@ -13,8 +13,8 @@ cd vi-midas
 Create the environment 
 
 ```
-conda create --name vi-midas python=3.7
-conda activate vi-midas
+conda create --name vim python=3.7
+conda activate vim
 pip install -r requirements.txt
 ```
 ---
