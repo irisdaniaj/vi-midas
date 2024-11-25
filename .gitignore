@@ -1,5 +1,7 @@
 # Ignore the results folder (optional if results are large or sensitive)
 results/hyperparameter/*
+# Except the plots subfolder
+!results/plots/
 # Ignore SLURM job logs and error files
 *.out
 *.err
