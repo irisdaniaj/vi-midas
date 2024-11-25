@@ -1,0 +1,19 @@
+# Ignore the results folder (optional if results are large or sensitive)
+results/hyperparameter/*
+# Ignore SLURM job logs and error files
+*.out
+*.err
+
+# Ignore temporary files
+*.tmp
+*.log
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+
