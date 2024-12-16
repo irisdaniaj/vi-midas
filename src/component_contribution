@@ -1,0 +1,55 @@
+#!/bin/bash
+#SBATCH --gres=gpu:2
+#SBATCH --array=0-5%2                    # Adjust the range to match the number of models (0-5 for 6 Stan models)
+#SBATCH --job-name=component_contribution
+#SBATCH --output=../results/hyperparameter/logs/slurm-%A_%a.out
+#SBATCH --error=../results/hyperparameter/logs/slurm-%A_%a.err
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=30G
+#SBATCH --time=9:00:00 
+
+# Activate Conda environment
+source $(conda info --base)/etc/profile.d/conda.sh
+conda activate vim
+
+# Ensure directories exist
+mkdir -p ../results/hyperparameter/logfile/
+mkdir -p ../results/hyperparameter/logs/
+
+# Fixed hyperparameters (these can be set in the SLURM script or passed from another source)
+L=10                # Latent rank (k)
+SP_MEAN=398.199     # Regularization of the mean parameter (lambda)
+SP_VAR=0.04904      # Regularization of the variance parameter (theta)
+H_PROP=0.1          # Holdout proportion (test sample proportion)
+NSAMPLE_O=200       # Number of posterior samples
+SEED=123            # Model seed (fixed for all initializations)
+UID=123             # Simulation setting identifier
+
+# Stan model paths
+STAN_MODELS=("../stan_model/NB_microbe_ppc.stan" 
+             "../stan_model/NB_microbe_ppc-1.stan"
+             "../stan_model/NB_microbe_ppc-2.stan"
+             "../stan_model/NB_microbe_ppc-3.stan"
+             "../stan_model/NB_microbe_ppc-G.stan"
+             "../stan_model/NB_microbe_ppc_nointer.stan")
+
+# Get the current Stan model based on SLURM_ARRAY_TASK_ID
+M_TYPE=$SLURM_ARRAY_TASK_ID
+STAN_MODEL=${STAN_MODELS[$M_TYPE]}
+
+# Output directory for logs
+LOG_DIR="../results/hyperparameter/logfile/"
+
+# Number of initializations (sub-settings unique ID 1-20)
+NUM_INITIALIZATIONS=20
+
+# Run 20 different initializations for the current model configuration
+for SEED_ID in $(seq 1 $NUM_INITIALIZATIONS); do
+  # Generate a unique seed for this initialization by combining `SEED` and `SEED_ID`
+  RANDOM_SEED=$((SEED + SEED_ID))  # Combine `SEED` with `SEED_ID` for different random seeds
+
+  # Run the Python script with the chosen set of hyperparameters and the unique seed ID for initialization
+  echo "Running initialization ${SEED_ID} for model ${M_TYPE} with seed ${RANDOM_SEED}."
+  OMP_NUM_THREADS=1 python3 component_contribution_fit.py $L $SP_MEAN $SP_VAR $H_PROP $NSAMPLE_O $RANDOM_SEED $M_TYPE $UID > ${LOG_DIR}task_${M_TYPE}_${SEED_ID}.log 2>&1
+done

@@ -162,7 +162,7 @@ try:
                     diagnostic_file = diag_file_o, eval_elbo = 50, \
                     output_samples = nsample_o)
     # save model output 
-    fname_o = os.path.join(output_dir, f"{uid}_{sid}_model_nb.pkl")
+    fname_o = os.path.join(model_dir, f"{uid}_{sid}_model_nb.pkl")
     with open(fname_o, 'wb') as f:
         pickle.dump(NB_vb, f)
     with open(fname_o, 'rb') as f:
@@ -250,13 +250,13 @@ try:
     
     
     # save output 
-    fname_o = os.path.join(output_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
+    fname_o = os.path.join(model_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, nsample_o,\
                  Yte_fit, cv_test], open(fname_o, "wb"))
     # compute average LpmF distance
 except ZeroDivisionError:
-    fname_o = os.path.join(output_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
+    fname_o = os.path.join(model_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, nsample_o, 0, 0], open(fname_o, "wb"))
     # save output flag 

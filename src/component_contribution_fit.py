@@ -15,7 +15,18 @@ from scipy.stats import norm
 import pystan
 import pickle
 import sys
+import os 
+utils_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "utils"))
+sys.path.append(utils_dir)
+import sub_fun as sf
+import vb_stan as vbfun
 
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+model_path = os.path.join(base_dir, "stan_model")
+output_dir = os.path.join(base_dir, "results/component/")
+diag_dir = os.path.join(output_dir, "diagnostics/")
+model_dir = os.path.join(output_dir, "models/")
+os.makedirs(output_dir, exist_ok=True)
 
 # Get setting parameter for running the script
 print(sys.argv)
@@ -46,14 +57,16 @@ random.seed(m_seed)
 '''
 Import data for model fitting
 '''
-
+y_path= os.path.join(base_dir, "data/Y1.csv")
+x_path = os.path.join(base_dir, "data/X.csv")
+z_path = os.path.join(base_dir, "data/Z.csv")
 ## Response matrix: microbial abundance data 
-Y = pd.read_csv('Y1.csv').to_numpy()  
+Y = pd.read_csv(y_path).to_numpy()  
 Y = Y[:,range(2,Y.shape[1])]
 Y = Y.astype('int')
 
 ## Computation of the geometric mean:  
-import src.sub_fun as sf
+
 errx = 1e-5
 delta  = np.empty(Y.shape[0])  
 for i in range(Y.shape[0]):
@@ -69,13 +82,13 @@ Y = (Y.T+delta).T
 Y = Y.astype('int')
 
 ## Geochemical covariates 
-X = pd.read_csv('X.csv').iloc[:,1:].to_numpy()    
+X = pd.read_csv(x_path).iloc[:,1:].to_numpy()    
 X = np.subtract(X, np.mean(X, axis = 0)) # mean centering
 X = X/np.std(X,axis=0)                   # scaling 
 
 
 ## Spatio-temporal indicators
-Z = pd.read_csv('Z.csv')
+Z = pd.read_csv(z_path)
 I = Z.to_numpy()[:,range(1,Z.shape[1])]   
      
 # B biome indicator 
@@ -136,22 +149,22 @@ data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], \
 
 
 if mtype == 0:
-    fname = 'NB_microbe_ppc.stan' # stan model file name
+    fname = os.path.join(model_path, 'NB_microbe_ppc.stan') # stan model file name
     tol_rel_obj_set = 0.01        # convergence criteria vb
 if mtype == 1:
-    fname = 'NB_microbe_ppc_nointer.stan'
+    fname = os.path.join(model_path,'NB_microbe_ppc_nointer.stan')
     tol_rel_obj_set = 0.01
 if mtype == 2:
-    fname = 'NB_microbe_ppc-G.stan'
+    fname = os.path.join(model_path, 'NB_microbe_ppc-G.stan')
     tol_rel_obj_set = 0.01
 if mtype == 3:
-    fname = 'NB_microbe_ppc-1.stan'
+    fname = os.path.join(model_path, 'NB_microbe_ppc-1.stan')
     tol_rel_obj_set = 0.01
 if mtype == 4:
-    fname = 'NB_microbe_ppc-2.stan'
+    fname = os.path.join(model_path, 'NB_microbe_ppc-2.stan')
     tol_rel_obj_set = 0.01
 if mtype == 5:
-    fname = 'NB_microbe_ppc-3.stan'
+    fname = os.path.join(model_path, 'NB_microbe_ppc-3.stan')
     tol_rel_obj_set = 0.01
         
 
@@ -160,8 +173,8 @@ model_NB = open(fname, 'r').read()          # read model file
 mod = pystan.StanModel(model_code=model_NB) # model compile 
 
 # model output file 
-sample_file_o = str(uid)+ '_' + str(mtype) + '_'+ str(m_seed) + '_' + 'nb_sample.csv'    ## posterior sample file 
-diag_file_o = str(uid)+ '_' + str(mtype) + '_'+ str(m_seed) + '_' + 'nb_diag.csv'        ## variational bayes model diagnostic file 
+sample_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{m_seed}_nb_sample.csv")    ## posterior sample file 
+diag_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{m_seed}_nb_diag.csv")        ## variational bayes model diagnostic file 
 
 
 
@@ -183,8 +196,8 @@ try:
 
 
     # save model output 
-    temp_fname_o = str(uid)+ '_' + str(mtype) + '_'+ str(m_seed) + '_'
-    fname_o =  temp_fname_o + 'model_nb.pkl' 
+    #temp_fname_o = str(uid)+ '_' + str(mtype) + '_'+ str(m_seed) + '_' #change the path of this script EVERYTHING also the rest 
+    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb.pkl") 
     with open(fname_o, 'wb') as f:
         pickle.dump(NB_vb, f)
     with open(fname_o, 'rb') as f:
@@ -267,12 +280,6 @@ try:
                     tempx2 = vbfun.neg_binomial_2_lpmf(Y[i,j], Y[i,j],\
                               1/np.sqrt(parma_sample['phi'][s_ind,j]))
                     Yte_cv[s_ind,i,j] = tempx1
-
-
-          
-                    
-                    
-
     
     
     ## get mean estimate of the posterior distribution 
@@ -343,12 +350,12 @@ try:
     Yte_fit = np.multiply(holdout_mask, Yte_fit) 
     
     # save output 
-    fname_o = temp_fname_o + 'model_nb_cvtest.pkl' 
+    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb_cvtest.pkl")  
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, nsample_o,\
                  Yte_fit, cv_test, Y, muest, Yte_cv, 0, 0], open(fname_o, "wb"))
 except ZeroDivisionError:
-    fname_o = temp_fname_o + 'model_nb_cvtest.pkl' 
+    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb_cvtest.pkl")  
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, nsample_o, 0, 0,0,0,0,0,0], open(fname_o, "wb"))
     # save output flag 
