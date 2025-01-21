@@ -2,7 +2,7 @@
 
 ## Overview
 
-This script generates a set of hyperparameter combinations for use in hyperparameter tuning experiments. It randomly selects values for three hyperparameters: λ (lambda), ϑ (theta), and k (latent rank), which are typically used in model training processes. The generated combinations are saved into a CSV file for later use by the tuning script.
+This script generates a set of hyperparameter combinations for use in hyperparameter tuning experiments. It randomly selects values for three hyperparameters: λ , ϑ , and k , which are typically used in model training processes. The generated combinations are saved into a CSV file for later use by the tuning script.
 
 ## Script Details
 
