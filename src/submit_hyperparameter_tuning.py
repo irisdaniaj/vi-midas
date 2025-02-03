@@ -20,8 +20,8 @@ params_df = pd.read_csv(csv_path)
 
 # Function to check if the model file exists
 def model_exists(uid, sid_current):
-    model_path = os.path.join(model_dir, f"{sid_current}_{uid}_model_nb.pkl")
-    return os.path.exists(model_path)
+    compressed_model_path = os.path.join(model_dir, f"{sid_current}_{uid}_summary.pkl.gz")
+    return os.path.exists(compressed_model_path)
 
 # Dynamically generate commands from the CSV rows
 commands = []
@@ -38,7 +38,7 @@ for idx, row in params_df.iterrows():
         # Check if the model already exists
         if not model_exists(uid, sid_current):
             print(f"Preparing command for sid: {uid}, repeat: {repeat} (sid_current: {sid_current})")
-            cmd = f"python3 hyperparameter_tuning_fit.py {l} {uid} {l} {sp_mean} {h_prop} {sid_current} {nsample_0} {uid}"
+            cmd = f"python3 hyperparameter_tuning_fit2.py {l} {uid} {l} {sp_mean} {h_prop} {sid_current} {nsample_0} {uid}"
             commands.append(cmd)
         else:
             print(f"Skipping: Model {sid_current}_{uid} already exists.")

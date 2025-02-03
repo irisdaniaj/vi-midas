@@ -247,8 +247,9 @@ try:
             if holdout_mask[i,j] == 1: 
                 cv_test[i,j] = np.log(np.nanmean(Yte_cv[:,i,j]))
 
-    
-    
+
+
+"""    
     # save output 
     fname_o = os.path.join(model_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
@@ -262,4 +263,4 @@ except ZeroDivisionError:
     # save output flag 
     print("An exception occurred")        
     
-            
+"""      

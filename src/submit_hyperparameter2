@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH --job-name=vimidas
+#SBATCH --output=/dss/dsshome1/09/ra64nef3/vi-midas/src/log/vimidas-%A_%a.log
+#SBATCH --error=/dss/dsshome1/09/ra64nef3/vi-midas/src/log/vimidas-%A_%a.err
+#SBATCH -D ./
+#SBATCH --clusters=serial
+#SBATCH --partition=serial_std
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=50G
+#SBATCH --time=95:00:00
+#SBATCH --mail-type=NONE
+#SBATCH --mail-user=iris.jimenez@campus.lmu.de
+
+# Load your Python environment
+#source $(conda info --base)/etc/profile.d/conda.sh
+source /etc/profile.d/modules.sh
+source ~/.conda_init
+module load slurm_setup
+conda activate vim 
+
+# Ensure logs directory exists
+mkdir -p logs
+
+# Execute the Python script in the current directory
+python3 submit_hyperparameter_tuning.py

@@ -1,0 +1,60 @@
+#!/bin/bash
+#SBATCH --job-name=vimidas
+#SBATCH --output=/dss/dsshome1/09/ra64nef3/vi-midas/src/log/vimidas-%A_%a.log
+#SBATCH --error=/dss/dsshome1/09/ra64nef3/vi-midas/src/log/vimidas-%A_%a.err
+#SBATCH -D ./
+#SBATCH --clusters=serial
+#SBATCH --partition=serial_std
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=2G
+#SBATCH --time=24:00:00
+#SBATCH --mail-type=NONE
+#SBATCH --mail-user=iris.jimenez@campus.lmu.de
+
+# Load your Python environment
+#source $(conda info --base)/etc/profile.d/conda.sh
+source /etc/profile.d/modules.sh
+source ~/dss/dsshome1/09/ra64nef3/.conda_init
+module load slurm_setup
+conda activate vim 
+
+# Ensure logs directory exists
+mkdir -p /dss/dsshome1/09/ra64nef3/vi-midas/src/log/
+
+# Path to hyperparameters CSV
+hyperparams_csv="../results/hyperparameter/hyperparams.csv"
+
+# Define static arguments
+holdout=0.2     # Holdout proportion
+uid=123         # Unique identifier
+nsamples=200    # Number of posterior samples
+sid=456         # Simulation setting identifier
+
+# Directory for saved models
+model_dir="../results/hyperparameter/models/"
+
+# Ensure model directory exists
+mkdir -p "$model_dir"
+
+# Function to check if a model already exists
+def model_exists {
+    local uid=$1
+    local sid_current=$2
+    local model_path="$model_dir/${sid_current}_${uid}_summary.pkl.gz"
+    [[ -f "$model_path" ]]
+}
+
+# Read hyperparameters from the CSV and execute Python script
+while IFS=, read -r index latent_rank sp_mean sp_var; do
+    if [ "$index" != "index" ]; then  # Skip the header
+        sid_current=$((index * 100))
+
+        if model_exists $uid $sid_current; then
+            echo "Skipping: Model $sid_current already exists."
+        else
+            echo "Processing: latent_rank=$latent_rank, sp_mean=$sp_mean, sp_var=$sp_var"
+            # Run the Python script
+            python3 hyperparameter_tuning_fit2.py "$latent_rank" "$uid" "$latent_rank" "$sp_mean" "$holdout" "$sid_current" "$nsamples" "$uid"
+        fi
+    fi
+done < <(tail -n +2 "$hyperparams_csv")  # Skip the header row

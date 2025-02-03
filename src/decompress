@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH --job-name=compress_models
+#SBATCH --output=compress_models.out
+#SBATCH --error=compress_models.err
+#SBATCH --time=02:00:00
+#SBATCH --mem=8G
+#SBATCH --cpus-per-task=4
+
+# Load any necessary modules
+module load python/3.8
+
+# Activate your environment
+source activate vim
+
+# Run the script
+python3 process_existing_models.py
