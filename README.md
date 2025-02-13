@@ -28,16 +28,20 @@ python generate_csv.py
 ```
 This script generates 50 random combinations of hyperparameters (`λ`, `ϑ`, and `k`) within specified ranges using random sampling and saves them to a CSV file named `hyperparams.csv`. It ensures reproducibility by setting a fixed random seed.
 
+## Hyperparameter tuning
+
 ```
-sbatch submit_hyperparameter
+sbatch submit_run_hyperparameter
 ```
-The `submit_hyperparameter` script submits `submit_hyperparameter_tuning.py` as a batch job using SLURM. `submit_hyperparameter_tuning.py` automates the execution of `hyperparameter_tuning_fit.py` for all hyperparameter combinations specified in `hyperparams.csv`. The results will be saved in `results/hyperparameter`.  To analyze the results of `hyperparameter_tuning_fit.py` and choose the best hyperparameter combination in terms of out of sample log-likehood predictive density now we run the `hyperparameter_tuning_analysis.ipyb` notebook. The generated plots are saved in `results/plot`. 
+The `submit_run hyperparameter` script submits `_hyperunrparameter.py` as a batch job using SLURM, this script automates the execution of `hyperparameter_tuning_fit.py` for all hyperparameter combinations specified in `hyperparams.csv`. The results will be saved in `results/hyperparameter`.  To analyze the results of `hyperparameter_tuning_fit.py` and choose the best hyperparameter combination in terms of out of sample log-likehood predictive density now we run the `hyperparameter_tuning_analysis.ipyb` notebook. The generated plots are saved in `results/plot`. 
+
+## Component contribution
 
 Now that the best hyperparameter combination has been choosen we will analyze the contribution of each component(e.g., geochemical, spatio-temporal, interaction) in the generative model by dropping each single component for the given hyperparameter combination. To do so, run 
 ```
-sbatch submit_component -l LAMBDA -theta THETA -k K
+sbatch submit_run_component 
 ```
-It submits `component_submission.py -l LAMBDA -theta THETA -k K` as a batch job, which  automates the execution of `component_contribution_fit.py`. The results will be saved in `results/component/models`. To analyze the results of `component_contribution_fit.py` and identify how much each component contributes to the overall model performance run the `component_contribution_analysis.ipyb` notebook. The generated plots are saved in `results/plot`. 
+This submits `run_component.py` as a batch job, which automates the execution of `component_contribution_fit.py` for the selected hyperparameter combination. To analyze the results of `component_contribution_fit.py` and identify how much each component contributes to the overall model performance run the `component_contribution_analysis.ipyb` notebook. The generated plots are saved in `results/plot`. 
 
 ---
 ## Documentation 
