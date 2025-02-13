@@ -13,7 +13,20 @@ from scipy.stats import norm
 import pystan
 import pickle
 import sys
+import os 
+utils_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "utils"))
+sys.path.append(utils_dir)
+import sub_fun as sf
+import vb_stan as vbfun
 
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+model_path = os.path.join(base_dir, "stan_model")
+output_dir = os.path.join(base_dir, "results/sensitivity/")
+diag_dir = os.path.join(output_dir, "diagnostics/")
+model_dir = os.path.join(output_dir, "models/")
+os.makedirs(output_dir, exist_ok=True)
+os.makedirs(diag_dir, exist_ok=True)
+os.makedirs(model_dir, exist_ok=True)
 
 # Get setting parameter for running the script
 print(sys.argv)
@@ -21,7 +34,9 @@ print(sys.argv)
 uid = int(uid); nsample_o = int(nsample_o); m_seed = int(m_seed); l = int(l)
 random.seed(m_seed)
 
-
+y_path= os.path.join(base_dir, "data/Y1.csv")
+x_path = os.path.join(base_dir, "data/X.csv")
+z_path = os.path.join(base_dir, "data/Z.csv")
 '''
 # lanent_rank [l]; model seed [m_seed] 
 # regularization of the mean parameter [sp_mean]
@@ -41,12 +56,12 @@ Import data for model fitting
 '''
 
 ## Response matrix: microbial abundance data 
-Y = pd.read_csv('Y1.csv').to_numpy()  
+Y = pd.read_csv(y_path).to_numpy()  
 Y = Y[:,range(2,Y.shape[1])]
 Y = Y.astype('int')
 
 ## Computation of the geometric mean:  
-import src.sub_fun as sf
+#import src.sub_fun as sf
 errx = 1e-5
 delta  = np.empty(Y.shape[0])  
 for i in range(Y.shape[0]):
@@ -62,13 +77,13 @@ Y = (Y.T+delta).T
 Y = Y.astype('int')
 
 ## Geochemical covariates 
-X = pd.read_csv('X.csv').iloc[:,1:].to_numpy()    
+X = pd.read_csv(x_path).iloc[:,1:].to_numpy()    
 X = np.subtract(X, np.mean(X, axis = 0)) # mean centering
 X = X/np.std(X,axis=0)                   # scaling 
 
 
 ## Spatio-temporal indicators
-Z = pd.read_csv('Z.csv')
+Z = pd.read_csv(z_path)
 I = Z.to_numpy()[:,range(1,Z.shape[1])]   
      
 # B biome indicator 
@@ -129,15 +144,16 @@ data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], \
         'm':Q.shape[1], 'Q': Q}
 
 
-
+stan_mod = os.path.join(model_path, 'NB_microbe_ppc.stan')
 fname = 'NB_microbe_ppc.stan'          # stan model file name
-model_NB = open(fname, 'r').read()     # read model file 
+model_NB = open(stan_mod, 'r').read()     # read model file 
 mod = pystan.StanModel(model_code=model_NB) # model compile 
 
 
 # model output file 
-sample_file_o = str(uid) + '_' + 'nb_sample.csv' ## posterior sample file 
-diag_file_o = str(uid) + '_' + 'nb_diag.csv'     ## variational bayes model diagnostic file 
+sample_file_o = os.path.join(diag_dir, f"{uid}_nb_sample.csv")
+diag_file_o = os.path.join(diag_dir, f"{uid}_nb_diag.csv")
+model_output_file = os.path.join(model_dir, f"{uid}_model_nb_cvtest.pkl")    ## variational bayes model diagnostic file 
 
 
 
@@ -146,18 +162,17 @@ try:
     Call variational bayes module of the STAN to obtain the model posterior
     '''
     print([l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o])
-    NB_vb = mod.vb(data=data,iter=3000, seed = m_seed, verbose = True, \
-                    adapt_engaged = True, sample_file = sample_file_o, \
+    NB_vb = mod.vb(data=data,iter=2000, seed = m_seed, verbose = True, \
+                    adapt_engaged = True, sample_file = None, \
                     diagnostic_file = diag_file_o, eval_elbo = 50, \
                     output_samples = nsample_o)
-    
-        
     # save model output 
-    fname_o = str(uid) + '_' + 'model_nb.pkl' 
-    with open(fname_o, 'wb') as f:
-        pickle.dump(NB_vb, f)
-    with open(fname_o, 'rb') as f:
-        results = pickle.load(f)
+    fname_o = os.path.join(model_dir, f"{uid}_model_nb.pkl")
+
+   # with open(fname_o, 'wb') as f:
+   #     pickle.dump(NB_vb, f)
+   # with open(fname_o, 'rb') as f:
+   #     results = pickle.load(f)
         
         
         
@@ -170,7 +185,7 @@ try:
     
     # variance estimate of  rge model parameters
     import utils.vb_stan as vbfun
-    parma_sample  = vbfun.vb_extract_sample(results)
+    parma_sample  = vbfun.vb_extract_sample(NB_vb)
     parma_sample  =  dict(parma_sample)
     
     random.seed(m_seed)
@@ -208,7 +223,7 @@ try:
                     
 
     ## get mean estimate of the posterior distribution 
-    parma_mean  = dict(vbfun.vb_extract_mean(results))
+    parma_mean  = dict(vbfun.vb_extract_mean(NB_vb))
 
 
     ## Get mean parameter estimate of the Negative Binomial distribution using the model parameters estimate           
@@ -247,24 +262,17 @@ try:
                 
 
     # save output 
-    fname_o = str(uid) + '_' + 'model_nb_cvtest.pkl' 
-    pickle.dump([holdout_mask, 0, 0, l,m_seed,sp_mean,\
-                 sp_var, h_prop, uid, nsample_o, Yte_fit,\
-                 cv_test], open(fname_o, "wb"))
-    
-    fname_o = str(uid) + '_' + 'sample_model_nb_cvtest.pkl' 
-    pickle.dump([Yte_sample,Yte_cv], open(fname_o, "wb"))
+    fname_o = os.path.join(model_dir, f"{uid}_model_nb_cvtest.pkl")
+    pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
+                 sp_var, h_prop, uid, nsample_o,\
+                 Yte_fit, cv_test], open(fname_o, "wb"))
     # compute average LpmF distance
 except ZeroDivisionError:
-    fname_o = str(uid) + '_' + 'model_nb_cvtest.pkl' 
-    pickle.dump([holdout_mask, 0, 0, l,m_seed,sp_mean,\
-                 sp_var, h_prop, uid, nsample_o, 0,0], open(fname_o, "wb"))
-    
-    fname_o = str(uid) + '_' + 'sample_model_nb_cvtest.pkl' 
-    pickle.dump([0.,0.], open(fname_o, "wb"))
+    fname_o = os.path.join(model_dir, f"{uid}_model_nb_cvtest.pkl")
+    pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
+                 sp_var, h_prop, uid, nsample_o, 0, 0], open(fname_o, "wb"))
     # save output flag 
     print("An exception occurred")        
-    
     
     
             

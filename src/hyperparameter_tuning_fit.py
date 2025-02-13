@@ -158,15 +158,15 @@ try:
     '''
     print([l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o, sid])
     NB_vb = mod.vb(data=data,iter=2000, seed = m_seed, verbose = True, \
-                    adapt_engaged = True, sample_file = sample_file_o, \
+                    adapt_engaged = True, sample_file = None, \
                     diagnostic_file = diag_file_o, eval_elbo = 50, \
                     output_samples = nsample_o)
     # save model output 
     fname_o = os.path.join(model_dir, f"{uid}_{sid}_model_nb.pkl")
-    with open(fname_o, 'wb') as f:
-        pickle.dump(NB_vb, f)
-    with open(fname_o, 'rb') as f:
-        results = pickle.load(f)
+#    with open(fname_o, 'wb') as f:
+#        pickle.dump(NB_vb, f)
+#    with open(fname_o, 'rb') as f:
+#        results = pickle.load(f)
         
     '''
     Evaluate model parameters estimate based on out of sample log-posterior predictive check [LLPD]
@@ -177,7 +177,7 @@ try:
     
     # variance estimate of  rge model parameters
 
-    parma_sample  = vbfun.vb_extract_sample(results)
+    parma_sample  = vbfun.vb_extract_sample(NB_vb)
     parma_sample  =  dict(parma_sample)
     
     random.seed(m_seed)
@@ -210,7 +210,7 @@ try:
                     
                         
     ## get mean estimate of the posterior distribution 
-    parma_mean  = dict(vbfun.vb_extract_mean(results))
+    parma_mean  = dict(vbfun.vb_extract_mean(NB_vb))
 
     
     ## Get mean parameter estimate of the Negative Binomial distribution using the model parameters estimate          
@@ -247,9 +247,8 @@ try:
             if holdout_mask[i,j] == 1: 
                 cv_test[i,j] = np.log(np.nanmean(Yte_cv[:,i,j]))
 
-
-
-"""    
+    
+    
     # save output 
     fname_o = os.path.join(model_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
@@ -263,4 +262,4 @@ except ZeroDivisionError:
     # save output flag 
     print("An exception occurred")        
     
-"""      
+            

@@ -27,7 +27,8 @@ output_dir = os.path.join(base_dir, "results/component/")
 diag_dir = os.path.join(output_dir, "diagnostics/")
 model_dir = os.path.join(output_dir, "models/")
 os.makedirs(output_dir, exist_ok=True)
-
+os.makedirs(diag_dir, exist_ok=True)
+os.makedirs(model_dir, exist_ok=True)
 # Get setting parameter for running the script
 print(sys.argv)
 [l,sp_mean,sp_var, h_prop, nsample_o, m_seed, mtype, uid] = map(float, sys.argv[1:])
@@ -175,9 +176,6 @@ mod = pystan.StanModel(model_code=model_NB) # model compile
 # model output file 
 sample_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{m_seed}_nb_sample.csv")    ## posterior sample file 
 diag_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{m_seed}_nb_diag.csv")        ## variational bayes model diagnostic file 
-
-
-
 
 
 ## check for model fit error ; try catch and then proceed with evaluation 
