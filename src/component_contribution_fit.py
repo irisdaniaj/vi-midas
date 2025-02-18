@@ -176,7 +176,7 @@ mod = pystan.StanModel(model_code=model_NB) # model compile
 # model output file 
 sample_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{m_seed}_nb_sample.csv")    ## posterior sample file 
 diag_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{m_seed}_nb_diag.csv")        ## variational bayes model diagnostic file 
-
+model_output_file = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb_cvtest.pkl")
 
 ## check for model fit error ; try catch and then proceed with evaluation 
 try:
@@ -185,21 +185,21 @@ try:
     '''
     print([l,sp_mean,sp_var, h_prop, nsample_o, m_seed, mtype, uid])
     NB_vb = mod.vb(data=data,iter=3000, seed = m_seed, verbose = True, \
-                    adapt_engaged = True, sample_file = sample_file_o, \
+                    adapt_engaged = True, sample_file = None, \
                     diagnostic_file = diag_file_o, eval_elbo = 50, \
                     output_samples = nsample_o, tol_rel_obj = tol_rel_obj_set)
 
-    nb_elbo = pd.read_csv(diag_file_o, comment='#', header=None)
-    nb_elbo.columns = ['iter', 'time', 'ELBO']  
+    #nb_elbo = pd.read_csv(diag_file_o, comment='#', header=None)
+    #nb_elbo.columns = ['iter', 'time', 'ELBO']  
 
 
     # save model output 
     #temp_fname_o = str(uid)+ '_' + str(mtype) + '_'+ str(m_seed) + '_' #change the path of this script EVERYTHING also the rest 
     fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb.pkl") 
-    with open(fname_o, 'wb') as f:
-        pickle.dump(NB_vb, f)
-    with open(fname_o, 'rb') as f:
-        results = pickle.load(f)
+    #with open(fname_o, 'wb') as f:
+    #    pickle.dump(NB_vb, f)
+    #with open(fname_o, 'rb') as f:
+    #    results = pickle.load(f)
         
         
     '''
@@ -210,8 +210,8 @@ try:
     
 
     # variance estimate of  rge model parameters
-    import utils.vb_stan as vbfun
-    parma_sample  = vbfun.vb_extract_sample(results)
+    #import utils.vb_stan as vbfun
+    parma_sample  = vbfun.vb_extract_sample(NB_vb)
     parma_sample  =  dict(parma_sample)
     
 
@@ -281,7 +281,7 @@ try:
     
     
     ## get mean estimate of the posterior distribution 
-    parma_mean  = dict(vbfun.vb_extract_mean(results))
+    parma_mean  = dict(vbfun.vb_extract_mean(NB_vb))
     
     ## Get mean parameter estimate of the Negative Binomial distribution using the model parameters estimate         
     muest = np.zeros((n,q))
