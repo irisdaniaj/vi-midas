@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH -D .
+#SBATCH --array=1-5
+#SBATCH --job-name=sensivity_analysis
+#SBATCH --output=/dss/dsshome1/09/ra64nef3/vi-midas/src/log/vimidas-%A_%a.log
+#SBATCH --error=/dss/dsshome1/09/ra64nef3/vi-midas/src/log/vimidas-%A_%a.err
+#SBATCH --clusters=serial
+#SBATCH --partition=serial_std
+#SBATCH --cpus-per-task=13
+#SBATCH --time=32:00:00
+#SBATCH --mail-type=NONE
+#SBATCH --mail-user=iris.jimenez@campus.lmu.de
+
+# Activate Conda environment
+source /etc/profile.d/modules.sh
+source ~/.conda_init
+module load slurm_setup
+conda activate vim 
+
+
+# Run Python script
+python3 run_sensitivity.py $SLURM_ARRAY_TASK_ID 2>&1
