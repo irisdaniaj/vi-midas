@@ -33,7 +33,7 @@ This script generates 50 random combinations of hyperparameters (`λ`, `ϑ`, and
 ```
 sbatch submit_run_hyperparameter
 ```
-The `submit_run hyperparameter` script submits `_hyperunrparameter.py` as a batch job using SLURM, this script automates the execution of `hyperparameter_tuning_fit.py` for all hyperparameter combinations specified in `hyperparams.csv`. The results will be saved in `results/hyperparameter`.  To analyze the results of `hyperparameter_tuning_fit.py` and choose the best hyperparameter combination in terms of out of sample log-likehood predictive density now we run the `hyperparameter_tuning_analysis.ipyb` notebook. The generated plots are saved in `results/plot`. 
+The `submit_run hyperparameter` script submits as a batch job, which automates the execution of `hyperparameter_tuning_fit.py` for all hyperparameter combinations specified in `hyperparams.csv`. The results will be saved in `results/hyperparameter`.  To analyze the results of `hyperparameter_tuning_fit.py` and choose the best hyperparameter combination in terms of out of sample log-likehood predictive density now we run the `hyperparameter_tuning_analysis.ipyb` notebook. The generated plots are saved in `results/plot`. 
 
 ### Component contribution
 
