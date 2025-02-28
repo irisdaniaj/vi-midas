@@ -1,7 +1,7 @@
 # Ignore the results folder (optional if results are large or sensitive)
 results/hyperparameter/*
 results/component/*
-results/sensivity/*
+results/sensitivity/*
 # Except the plots subfolder
 !results/plots/
 src/log/*

@@ -1,19 +1,25 @@
 
 import pandas as pd
 import numpy as np
-import src.sub_fun as sf
 import pickle
 import scipy.cluster.hierarchy as sch
 import copy
+import os 
+import sub_fun as sf
+import vb_stan as vbfun
 
+#base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+y_path= os.path.join("../data/Y1.csv")
+x_path = os.path.join("../data/X.csv")
+z_path = os.path.join("../data/Z.csv")
 
 ## Response matrix: microbial abundance data 
-Y = pd.read_csv('Y1.csv').to_numpy()  
+Y = pd.read_csv(y_path).to_numpy()  
 Y = Y[:,range(2,Y.shape[1])]
 Y = Y.astype('int')
 
 ## Save original data 
-Yo = pd.read_csv('Y1.csv').to_numpy()  
+Yo = pd.read_csv(y_path).to_numpy()  
 Yo = Yo[:,range(2,Yo.shape[1])]
 Yo = Yo.astype('int')
 
@@ -34,13 +40,13 @@ Y = (Y.T+delta).T
 Y = Y.astype('int')
 
 ## Geochemical covariates 
-X = pd.read_csv('X.csv').iloc[:,1:].to_numpy()    
+X = pd.read_csv(x_path).iloc[:,1:].to_numpy()    
 X = np.subtract(X, np.mean(X, axis = 0)) # mean centering
 X = X/np.std(X,axis=0)                   # scaling 
 
 
 ## Spatio-temporal indicators
-Z = pd.read_csv('Z.csv')
+Z = pd.read_csv(z_path)
 I = Z.to_numpy()[:,range(1,Z.shape[1])]   
      
 # B biome indicator 

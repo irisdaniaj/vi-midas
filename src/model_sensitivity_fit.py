@@ -151,9 +151,9 @@ mod = pystan.StanModel(model_code=model_NB) # model compile
 
 
 # model output file 
-sample_file_o = os.path.join(diag_dir, f"{uid}_nb_sample.csv")
-diag_file_o = os.path.join(diag_dir, f"{uid}_nb_diag.csv")
-model_output_file = os.path.join(model_dir, f"{uid}_model_nb_cvtest.pkl")    ## variational bayes model diagnostic file 
+sample_file_o = os.path.join(diag_dir, f"{uid}_{m_seed}_nb_sample.csv")
+diag_file_o = os.path.join(diag_dir, f"{uid}_{m_seed}_nb_diag.csv")
+model_output_file = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb_cvtest.pkl")    ## variational bayes model diagnostic file 
 
 
 
@@ -167,7 +167,7 @@ try:
                     diagnostic_file = diag_file_o, eval_elbo = 50, \
                     output_samples = nsample_o)
     # save model output 
-    fname_o = os.path.join(model_dir, f"{uid}_model_nb.pkl")
+    fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb.pkl")
 
    # with open(fname_o, 'wb') as f:
    #     pickle.dump(NB_vb, f)
@@ -184,7 +184,6 @@ try:
     
     
     # variance estimate of  rge model parameters
-    import utils.vb_stan as vbfun
     parma_sample  = vbfun.vb_extract_sample(NB_vb)
     parma_sample  =  dict(parma_sample)
     
@@ -262,16 +261,22 @@ try:
                 
 
     # save output 
-    fname_o = os.path.join(model_dir, f"{uid}_model_nb_cvtest.pkl")
-    pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
+    fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb_cvtest.pkl")
+    pickle.dump([holdout_mask, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, nsample_o,\
                  Yte_fit, cv_test], open(fname_o, "wb"))
+    
+    fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_sample_model_nb_cvtest.pkl")
+    pickle.dump([Yte_sample,Yte_cv], open(fname_o, "wb"))
+    # compute average LpmF distance
     # compute average LpmF distance
 except ZeroDivisionError:
-    fname_o = os.path.join(model_dir, f"{uid}_model_nb_cvtest.pkl")
-    pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
+    fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb_cvtest.pkl")
+    pickle.dump([holdout_mask, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, nsample_o, 0, 0], open(fname_o, "wb"))
     # save output flag 
+    fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_sample_model_nb_cvtest.pkl")
+    pickle.dump([0.,0.], open(fname_o, "wb"))
     print("An exception occurred")        
     
     

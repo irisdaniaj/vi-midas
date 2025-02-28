@@ -28,18 +28,18 @@ sp_var = float(hyperparam_data['upsilon'].iloc[0])
 # Fixed parameters
 h_prop = 0.0  # No holdout
 nsample_o = 200  # Number of posterior samples
-ninit = 50  # Number of initializations
+ninit = 50 # Number of initializations
 n_max_run = 12  # Limit parallel processes
 
 # Function to check if a model already exists
 def model_exists(sed):
-    model_path = os.path.join(model_dir, f"{sed}_model_nb_cvtest.pkl")
+    model_path = os.path.join(model_dir, f"{uid}_{sed}_model_nb_cvtest.pkl")
     return os.path.exists(model_path)
 
 # Function to run a single model and log output
 def run_command(sed):
-    model_file = os.path.join(model_dir, f"{sed}_model_nb_cvtest.pkl")
-    log_file = os.path.join(log_dir, f"sensitivity_run_{sed}.txt")
+    model_file = os.path.join(model_dir, f"{uid}_{sed}_model_nb_cvtest.pkl")
+    log_file = os.path.join(log_dir, f"sensitivity_run_{uid}_{sed}.txt")
 
     # Skip model if it already exists
     if model_exists(sed):
@@ -76,11 +76,11 @@ def run_command(sed):
             "stderr": f"Error: {str(e)}"
         }
 
-# Generate list of models that need to be computed
-commands_to_run = []
+# Generate list of models that need to be computed to avoid the strange naming of the diag files 
+commands_to_run = [] 
 for hset in range(hyperparam_data.shape[0]):
-    for uid in range(ninit):
-        sed = ninit*(hset + 1) + uid
+    for init_index in range(ninit):    # Changed from 'uid' to 'init_index'
+        sed = ninit*(hset + 1) + init_index
         if not model_exists(sed):
             commands_to_run.append(sed)
 
@@ -100,3 +100,14 @@ if commands_to_run:
             print("-" * 50)
 else:
     print("✅ All models already exist. No computation needed.")
+
+
+"""
+# Generate list of models that need to be computed to avoid the strange naming of the diag files 
+commands_to_run = [] 
+for hset in range(hyperparam_data.shape[0]):
+    for init_index in range(ninit):    # Changed from 'uid' to 'init_index'
+        sed = ninit*(hset + 1) + init_index
+        if not model_exists(sed):
+            commands_to_run.append(sed)
+"""
