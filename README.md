@@ -53,10 +53,10 @@ This submits `run_sensitivity.py` as a batch job, which automates the execution 
 
 ### Analysis 
 
-Now we can analyze the best model parameter estimates.
-`model_analysis1.ipynb`: Analyzes model parameter estimates. 
-`model_analyis2.ipynb`: Evaluates model validity using different performance metrics. 
-`model_analysis3.ipynb`: Investigates the contribution of individual components in the MEM. 
+Now we can analyze the best model parameter estimates. \\
+`model_analysis1.ipynb`: Analyzes model parameter estimates. \\
+`model_analyis2.ipynb`: Evaluates model validity using different performance metrics. \\
+`model_analysis3.ipynb`: Investigates the contribution of individual components in the MEM. \\
 
 ### Inference 
 
