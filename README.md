@@ -56,13 +56,13 @@ This submits `run_sensitivity.py` as a batch job, which automates the execution 
 Now we can analyze the best model parameter estimates. \
 `model_analysis1.ipynb`: Analyzes model parameter estimates. \
 `model_analyis2.ipynb`: Evaluates model validity using different performance metrics. \
-`model_analysis3.ipynb`: Investigates the contribution of individual components in the MEM. \
+`model_analysis3.ipynb`: Investigates the contribution of individual components in the MEM. 
 
 ### Inference 
 
-Now we can run inference. 
-`model_inference1.ipynb`: Infers the effects of geochemical factors and spatio-temporal components.
-`model_inference2.ipynb`: Identify species similarity using cosine distance on the latent vector and detect positive interactions among species.
+Now we can run inference. \
+`model_inference1.ipynb`: Infers the effects of geochemical factors and spatio-temporal components. \
+`model_inference2.ipynb`: Identify species similarity using cosine distance on the latent vector and detect positive interactions among species. \
 `model_inference3.ipynb`: Similar to the previous notebook but with different visualization. 
 
 ---
