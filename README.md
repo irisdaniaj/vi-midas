@@ -44,6 +44,27 @@ sbatch submit_run_component
 This submits `run_component.py` as a batch job, which automates the execution of `component_contribution_fit.py` for the selected hyperparameter combination. To analyze the results of `component_contribution_fit.py` and identify how much each component contributes to the overall model performance run the `component_contribution_analysis.ipyb` notebook. The generated plots are saved in `results/plot`. 
 
 ### Model sensitivity
+
+Since the parameters estimate are sensitive to the choice of their initial estimates. We further evaluate the choosen hyperparameter set for 50 random initialization and then select the best model out of it.
+```
+sbatch submit_run_component 
+```
+This submits `run_sensitivity.py` as a batch job, which automates the execution of `model_sensitivity_fit.py` for the selected hyperparameter combination. To analyze the results of `model_sensitivity_fit.py` and identify the best model run the `model_sensitivity_analysis.ipyb` notebook. The generated plots are saved in `results/plot`. 
+
+### Analysis 
+
+Now we can analyze the best model parameter estimates.
+`model_analysis1.ipynb`: Analyzes model parameter estimates. 
+`model_analyis2.ipynb`: Evaluates model validity using different performance metrics. 
+`model_analysis3.ipynb`: Investigates the contribution of individual components in the MEM. 
+
+### Inference 
+
+Now we can run inference. 
+`model_inference1.ipynb`: Infers the effects of geochemical factors and spatio-temporal components.
+`model_inference2.ipynb`: Identify species similarity using cosine distance on the latent vector and detect positive interactions among species.
+`model_inference3.ipynb`: Similar to the previous notebook but with different visualization. 
+
 ---
 ## Documentation 
 
