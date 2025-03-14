@@ -1,6 +1,12 @@
 import numpy as np
 import pandas as pd
 import os 
+import argparse
+
+parser = argparse.ArgumentParser(description="Run Hyperparameter Tuning with Original or New Data")
+parser.add_argument("mode", nargs="?", choices=["original", "new"], default="original",
+                    help="Choose dataset mode: 'original' or 'new' (default: original)")
+args = parser.parse_args()
 
 # Hyperparameter ranges
 lambda_range = np.logspace(np.log10(0.01), np.log10(3000), num=50)  # Log scale for λ
@@ -17,7 +23,9 @@ for i in range(50):
     hyperparams.append({"λ": l, "ϑ": theta, "k": k})
 
 # Define the output path
-output_dir = "../results/hyperparameter"
+output_dir = "../results/results_op/hyperparameter/" if args.mode == "original" else "../results/results_new/"
+
+#output_dir = "../results/hyperparameter"
 
 # Check if the results folder exists, create it if not
 if not os.path.exists(output_dir):

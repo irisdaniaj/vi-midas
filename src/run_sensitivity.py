@@ -2,11 +2,27 @@ import os
 import pickle
 import subprocess
 from concurrent.futures import ProcessPoolExecutor
+config_file = "config_mode.txt"
+#mode = "original"  # Default
 
+if os.path.exists(config_file):
+    with open(config_file, "r") as f:
+        mode = f.read().strip()
+# -------------------------
+#  Set Paths Based on Mode
+# -------------------------
+base_results_dir = "../results/results_op/sensitivity" if mode == "original" else "../results/results_new/sensitivity"
+#csv_path = os.path.join(base_results_dir, "hyperparams.csv")
+model_dir = os.path.join(base_results_dir, "models")
+log_dir = os.path.join(base_results_dir, "logs")
+
+# Ensure directories exist
+os.makedirs(model_dir, exist_ok=True)
+os.makedirs(log_dir, exist_ok=True)
 # Paths
 hyperparam_file = "../notebooks/selected_hyperparam"
-model_dir = "../results/sensitivity/models/"
-log_dir = "../results/sensitivity/logs/"
+#model_dir = "../results/sensitivity/models/"
+#log_dir = "../results/sensitivity/logs/"
 
 # Ensure directories exist
 os.makedirs(model_dir, exist_ok=True)

@@ -7,11 +7,20 @@ import copy
 import os 
 import sub_fun as sf
 import vb_stan as vbfun
+# -------------------------
+#  Read Mode from Config File
+# -------------------------
+config_file = "config_mode.txt"
+mode = "original"  # Default
 
+if os.path.exists(config_file):
+    with open(config_file, "r") as f:
+        mode = f.read().strip()
+data_dir = "../data/data_op/" if mode == "original" else "../data/data_new/hyperparameter"
 #base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-y_path= os.path.join("../data/Y1.csv")
-x_path = os.path.join("../data/X.csv")
-z_path = os.path.join("../data/Z.csv")
+y_path= os.path.join(data_dir, "Y1.csv")
+x_path = os.path.join(data_dir, "X.csv")
+z_path = os.path.join(data_dir, "Z.csv")
 
 ## Response matrix: microbial abundance data 
 Y = pd.read_csv(y_path).to_numpy()  

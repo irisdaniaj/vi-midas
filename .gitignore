@@ -2,10 +2,14 @@
 results/hyperparameter/*
 results/component/*
 results/sensitivity/*
+results/*
 # Except the plots subfolder
 !results/plots/
 src/log/*
 src/logs/*
+src/*.pkl
+src/*.tar.gz
+*.csv
 # Ignore SLURM job logs and error files
 *.out
 *.err

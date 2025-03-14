@@ -3,10 +3,30 @@ import pickle
 import subprocess
 from concurrent.futures import ProcessPoolExecutor
 
+# -------------------------
+#  Read Mode from Config File
+# -------------------------
+config_file = "config_mode.txt"
+mode = "original"  # Default
+
+if os.path.exists(config_file):
+    with open(config_file, "r") as f:
+        mode = f.read().strip()
+# -------------------------
+#  Set Paths Based on Mode
+# -------------------------
+base_results_dir = "../results/results_op/component" if mode == "original" else "../results/results_new/component"
+#csv_path = os.path.join(base_results_dir, "hyperparams.csv")
+model_dir = os.path.join(base_results_dir, "models")
+log_dir = os.path.join(base_results_dir, "logs")
+
+# Ensure directories exist
+os.makedirs(model_dir, exist_ok=True)
+os.makedirs(log_dir, exist_ok=True)
 # Paths
 hyperparam_file = "../notebooks/selected_hyperparam"
-model_dir = "../results/component/models/"
-log_dir = "../results/component/logs/"
+#model_dir = "../results/component/models/"
+#log_dir = "../results/component/logs/"
 
 # Ensure directories exist
 os.makedirs(model_dir, exist_ok=True)
@@ -48,7 +68,7 @@ def run_command(params):
             f.write(f"Skipping: Model {model_file} already exists.\n")
         return {"command": None, "stdout": "", "stderr": ""}
 
-    command = f"python3 component_contribution_fit.py {l} {sp_mean} {sp_var} {h_prop} {nsample_0} {m_seed} {mtype} {uid}"
+    command = f"python3 component_contribution_fit_new.py {mode} {l} {sp_mean} {sp_var} {h_prop} {nsample_0} {m_seed} {mtype} {uid}"
     print(f"Executing: {command}")
 
     try:
@@ -77,10 +97,17 @@ def run_command(params):
         }
 
 # **Step 1: Generate list of models that need to be computed**
-commands_to_run = [
-    (mtype, m_seed) for mtype in range(6) for m_seed in range(20)
-    if not model_exists(mtype, m_seed)
-]
+# 🔹 Ensure only mtype = 6 runs when mode is "new"
+if mode == "new":
+    commands_to_run = [
+        (6, m_seed) for m_seed in range(20) if not model_exists(6, m_seed)
+    ]
+else:
+    commands_to_run = [
+        (mtype, m_seed) for mtype in range(6) for m_seed in range(20)
+        if not model_exists(mtype, m_seed)
+    ]
+
 
 # **Step 2: Run jobs in parallel if there are models to compute**
 if commands_to_run:

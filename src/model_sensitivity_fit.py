@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import norm
 import pystan
+import argparse
 import pickle
 import sys
 import os 
@@ -19,25 +20,38 @@ sys.path.append(utils_dir)
 import sub_fun as sf
 import vb_stan as vbfun
 
+# -------------------------
+#  Command-Line Argument for Path Selection
+# -------------------------
+parser = argparse.ArgumentParser(description="Run Stan Model with Original or New Data")
+parser.add_argument("mode", nargs="?", choices=["original", "new"], default="original", help="Choose dataset mode: 'original' or 'new' (default: original)")
+args, remaining_args = parser.parse_known_args()
+# -------------------------
+#  Set Paths Based on Mode
+# -------------------------
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-model_path = os.path.join(base_dir, "stan_model")
-output_dir = os.path.join(base_dir, "results/sensitivity/")
-diag_dir = os.path.join(output_dir, "diagnostics/")
-model_dir = os.path.join(output_dir, "models/")
-os.makedirs(output_dir, exist_ok=True)
+
+if args.mode == "original":
+    data_dir = os.path.join(base_dir, "data/data_op/")
+    stan_mod= os.path.join(base_dir, "stan_model/NB_microbe_ppc.stan")
+    results_dir = os.path.join(base_dir, "results/results_op/sensitivity/")
+else:  # mode == "new"
+    data_dir = os.path.join(base_dir, "data/data_new/")
+    stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test.stan")
+    results_dir = os.path.join(base_dir, "results/results_new/")
+
+diag_dir = os.path.join(results_dir, "diagnostics/")
+model_dir = os.path.join(results_dir, "models/")
+
+os.makedirs(results_dir, exist_ok=True)
 os.makedirs(diag_dir, exist_ok=True)
 os.makedirs(model_dir, exist_ok=True)
 
-# Get setting parameter for running the script
 print(sys.argv)
-[l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o] = map(float, sys.argv[1:])
+[l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o, sid] = map(float, remaining_args)
 uid = int(uid); nsample_o = int(nsample_o); m_seed = int(m_seed); l = int(l)
-random.seed(m_seed)
+sid = int(sid)
 
-y_path= os.path.join(base_dir, "data/Y1.csv")
-x_path = os.path.join(base_dir, "data/X.csv")
-z_path = os.path.join(base_dir, "data/Z.csv")
-'''
 # lanent_rank [l]; model seed [m_seed] 
 # regularization of the mean parameter [sp_mean]
 # regularization of the dispersion parameter [sp_var]
@@ -45,18 +59,15 @@ z_path = os.path.join(base_dir, "data/Z.csv")
 # number of posterior samples from the variational posterior distribution [nsample_o]
 # identifier for the simulation seting: uid
 '''
-
 ## local test setting  
 #l = 6; m_seed = 3;  sp_mean = 200; sp_var = 1; 
 #h_prop = 0.0;nsample_o = 100; uid = 3; 
-
-
 '''
-Import data for model fitting
-'''
+
+#Import data for model fitting
 
 ## Response matrix: microbial abundance data 
-Y = pd.read_csv(y_path).to_numpy()  
+Y = pd.read_csv(data_dir, "Y1.csv").to_numpy()  
 Y = Y[:,range(2,Y.shape[1])]
 Y = Y.astype('int')
 
@@ -77,13 +88,13 @@ Y = (Y.T+delta).T
 Y = Y.astype('int')
 
 ## Geochemical covariates 
-X = pd.read_csv(x_path).iloc[:,1:].to_numpy()    
+X = pd.read_csv(data_dir, "X.csv").iloc[:,1:].to_numpy()    
 X = np.subtract(X, np.mean(X, axis = 0)) # mean centering
 X = X/np.std(X,axis=0)                   # scaling 
 
 
 ## Spatio-temporal indicators
-Z = pd.read_csv(z_path)
+Z = pd.read_csv(data_dir, "Z.csv")
 I = Z.to_numpy()[:,range(1,Z.shape[1])]   
      
 # B biome indicator 
@@ -144,8 +155,8 @@ data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], \
         'm':Q.shape[1], 'Q': Q}
 
 
-stan_mod = os.path.join(model_path, 'NB_microbe_ppc.stan')
-fname = 'NB_microbe_ppc.stan'          # stan model file name
+#stan_mod = os.path.join(model_path, 'NB_microbe_ppc_test.stan')
+#fname = 'NB_microbe_ppc_test.stan'          # stan model file name
 model_NB = open(stan_mod, 'r').read()     # read model file 
 mod = pystan.StanModel(model_code=model_NB) # model compile 
 

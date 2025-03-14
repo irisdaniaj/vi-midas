@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 from scipy.stats import norm
 import pystan
+import argparse
 import pickle
 import sys
 import os
@@ -21,17 +22,36 @@ sys.path.append(utils_dir)
 import sub_fun as sf
 import vb_stan as vbfun
 
+# -------------------------
+#  Command-Line Argument for Path Selection
+# -------------------------
+parser = argparse.ArgumentParser(description="Run Stan Model with Original or New Data")
+parser.add_argument("mode", nargs="?", choices=["original", "new"], default="original", help="Choose dataset mode: 'original' or 'new' (default: original)")
+args, remaining_args = parser.parse_known_args()
+# -------------------------
+#  Set Paths Based on Mode
+# -------------------------
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-model_path = os.path.join(base_dir, "stan_model")
-output_dir = os.path.join(base_dir, "results/hyperparameter/")
-diag_dir = os.path.join(output_dir, "diagnostics/")
-model_dir = os.path.join(output_dir, "models/")
-os.makedirs(output_dir, exist_ok=True)
+
+if args.mode == "original":
+    data_dir = os.path.join(base_dir, "data/data_op/")
+    stan_mod= os.path.join(base_dir, "stan_model/NB_microbe_ppc.stan")
+    results_dir = os.path.join(base_dir, "results/results_op/hyperparameter/")
+else:  # mode == "new"
+    data_dir = os.path.join(base_dir, "data/data_new/")
+    stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test.stan")
+    results_dir = os.path.join(base_dir, "results/results_new/")
+
+diag_dir = os.path.join(results_dir, "diagnostics/")
+model_dir = os.path.join(results_dir, "models/")
+
+os.makedirs(results_dir, exist_ok=True)
 os.makedirs(diag_dir, exist_ok=True)
 os.makedirs(model_dir, exist_ok=True)
+
 # Get setting parameter for running the script
 print(sys.argv)
-[l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o, sid] = map(float, sys.argv[1:])
+[l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o, sid] = map(float, remaining_args)
 uid = int(uid); nsample_o = int(nsample_o); m_seed = int(m_seed); l = int(l)
 sid = int(sid)
 
@@ -55,9 +75,9 @@ Import data for model fitting
 '''
 
 ## Response matrix: microbial abundance data 
-y_path= os.path.join(base_dir, "data/Y1.csv")
-x_path = os.path.join(base_dir, "data/X.csv")
-z_path = os.path.join(base_dir, "data/Z.csv")
+y_path= os.path.join(data_dir, "Y1.csv") #change the path of the data
+x_path = os.path.join(data_dir, "X.csv")
+z_path = os.path.join(data_dir, "Z.csv")
 Y = pd.read_csv(y_path).to_numpy()  
 Y = Y[:,range(2,Y.shape[1])]
 Y = Y.astype('int')
@@ -140,8 +160,8 @@ data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], \
         'holdout': holdout_mask, 'sp_mean' : sp_mean, 'sp_var' : sp_var,\
         'm':Q.shape[1], 'Q': Q}
 
-stan_mod = os.path.join(model_path, 'NB_microbe_ppc.stan')
-fname = 'NB_microbe_ppc.stan'          # stan model file name
+#stan_mod = os.path.join(model_path, 'NB_microbe_ppc.stan')
+#fname = 'NB_microbe_ppc.stan'          # stan model file name
 model_NB = open(stan_mod, 'r').read()     # read model file 
 mod = pystan.StanModel(model_code=model_NB) # model compile 
 
