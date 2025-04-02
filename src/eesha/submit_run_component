@@ -10,15 +10,13 @@
 #SBATCH --cpus-per-task=25
 #SBATCH --time=24:00:00
 #SBATCH --mail-type=NONE
-#SBATCH --mail-user=iris.jimenez@campus.lmu.de
+#SBATCH --mail-user=Eesha.Chitnis@campus.lmu.de
 
 # Activate Conda environment
 source /etc/profile.d/modules.sh
 source ~/.conda_init
 module load slurm_setup
 conda activate vim 
-
-echo "new" > config_mode.txt
 
 # Run Python script
 python3 run_component.py $SLURM_ARRAY_TASK_ID 2>&1

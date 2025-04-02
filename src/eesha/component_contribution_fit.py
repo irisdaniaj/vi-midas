@@ -24,24 +24,14 @@ import vb_stan as vbfun
 # -------------------------
 #  Command-Line Argument for Path Selection
 # -------------------------
-parser = argparse.ArgumentParser(description="Run Stan Model with Original or New Data")
-parser.add_argument("mode", nargs="?", choices=["original", "new"], default="original", help="Choose dataset mode: 'original' or 'new' (default: original)")
-args, remaining_args = parser.parse_known_args()
-# -------------------------
-#  Set Paths Based on Mode
-# -------------------------
+
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-if args.mode == "original":
-    data_dir = os.path.join(base_dir, "data/data_op/")
-    stan_mod= os.path.join(base_dir, "stan_model/")
-    #stan_mod= os.path.join(base_dir, "stan_model/NB_microbe_ppc.stan")
-    results_dir = os.path.join(base_dir, "results/results_op/component/")
-else:  # mode == "new"
-    data_dir = os.path.join(base_dir, "data/data_new/")
-    stan_mod= os.path.join(base_dir, "stan_model/")
-    #stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test.stan")
-    results_dir = os.path.join(base_dir, "results/results_new/component")
+
+data_dir = os.path.join(base_dir, "data/data_new/")
+stan_mod= os.path.join(base_dir, "stan_model/")
+#stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test.stan")
+results_dir = os.path.join(base_dir, "results/results_new_var/component/")
 
 diag_dir = os.path.join(results_dir, "diagnostics/")
 model_dir = os.path.join(results_dir, "models/")
@@ -52,13 +42,9 @@ os.makedirs(model_dir, exist_ok=True)
 
 # Get setting parameter for running the script
 print(sys.argv)
-[l,m_seed,sp_mean,sp_var, h_prop, uid, mtype, sid] = map(float, remaining_args)
-uid = int(uid); mtype = int(mtype); m_seed = int(m_seed); l = int(l)
-sid = int(sid)
-# 🔹 Force mtype = 6 if mode is "new"
-if args.mode == "new":
-    mtype = 6
-
+[l,m_seed,sp_mean,sp_var, h_prop, uid, mtype] = map(float, sys.argv[1:])
+uid = int(uid); mtype = int(mtype); m_seed = int(m_seed); l = int(l); uid = int(uid); 
+m_seed = int(m_seed); l = int(l)
 
 
 '''
@@ -83,9 +69,11 @@ Import data for model fitting
 y_path= os.path.join(data_dir, "Y1.csv") #change the path of the data
 x_path = os.path.join(data_dir, "X.csv")
 z_path = os.path.join(data_dir, "Z.csv")
-Y = pd.read_csv(y_path).to_numpy()  
-Y = Y[:,range(2,Y.shape[1])]
-Y = Y.astype('int')
+d_path = os.path.join(data_dir, "satellite.csv")
+
+#Y = pd.read_csv(y_path).to_numpy()  
+#Y = Y[:,range(2,Y.shape[1])]
+#Y = Y.astype('int')
 ## Response matrix: microbial abundance data 
 Y = pd.read_csv(y_path).to_numpy()  
 Y = Y[:,range(2,Y.shape[1])]
@@ -111,6 +99,10 @@ X = pd.read_csv(x_path).iloc[:,1:].to_numpy()
 X = np.subtract(X, np.mean(X, axis = 0)) # mean centering
 X = X/np.std(X,axis=0)                   # scaling 
 
+#new variables 
+D = pd.read_csv(d_path).iloc[:,1:].to_numpy()    
+D = np.subtract(D, np.mean(D, axis = 0)) # mean centering
+D = D/np.std(D,axis=0) #scaling 
 
 ## Spatio-temporal indicators
 Z = pd.read_csv(z_path)
@@ -174,9 +166,8 @@ Y_vad = np.multiply(holdout_mask, Y)
 Prepare input data, compile stan model and define output file (to store the model output)
 '''
 
-
-data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], \
-        'b':B.shape[1], 'Y':Y, 'X':X, 'S':S, 'B':B, 'Yi':Yi, 'T':T_i, 'Bs':Bs, \
+data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], "d": D.shape[1], \
+        'b':B.shape[1], 'Y':Y, 'X':X, 'S':S, 'B':B, 'Yi':Yi, 'T':T_i, 'Bs':Bs, "D": D, \
         'holdout': holdout_mask, 'sp_mean' : sp_mean, 'sp_var' : sp_var,\
         'm':Q.shape[1], 'Q': Q}
 
@@ -199,7 +190,7 @@ if mtype == 5:
     fname = os.path.join(stan_mod, 'NB_microbe_ppc-3.stan')
     tol_rel_obj_set = 0.01
 if mtype == 6:
-    fname = os.path.join(stan_mod, "NB_microbe_ppc_test.stan")
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_test_new.stan")
     tol_rel_obj_set = 0.01        
 
 
@@ -232,7 +223,7 @@ try:
 
     # save model output 
     #temp_fname_o = str(uid)+ '_' + str(mtype) + '_'+ str(m_seed) + '_'
-    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb.pkl") 
+    #fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb.pkl") 
     #with open(fname_o, 'wb') as f:
     #    pickle.dump(NB_vb, f)
     #with open(fname_o, 'rb') as f:
@@ -307,8 +298,8 @@ try:
                             np.matmul(X[i,],np.matmul(parma_sample['A_geo'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
                             np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
                             np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
-                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:]));
-                    
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
                     if mtype != 1:
                         if Yi[i,j] == 1:
                             temp = Yi[i,:];temp[j] = 0;
@@ -375,6 +366,7 @@ try:
                     np.matmul(X[i,],np.matmul(parma_mean['A_geo'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
             
             if mtype != 1:

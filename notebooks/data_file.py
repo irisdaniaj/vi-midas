@@ -11,16 +11,32 @@ import vb_stan as vbfun
 #  Read Mode from Config File
 # -------------------------
 config_file = "config_mode.txt"
-mode = "original"  # Default
 
-if os.path.exists(config_file):
-    with open(config_file, "r") as f:
-        mode = f.read().strip()
-data_dir = "../data/data_op/" if mode == "original" else "../data/data_new/hyperparameter"
+with open(config_file, "r") as f:
+    lines = f.read().splitlines()
+    data = lines[0].strip() if len(lines) > 0 else "original"
+    setting = int(lines[1]) if len(lines) > 1 else 1
+
+data_dir = "../data/data_op/" if data == "original" else "../data/data_new/"
 #base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 y_path= os.path.join(data_dir, "Y1.csv")
 x_path = os.path.join(data_dir, "X.csv")
 z_path = os.path.join(data_dir, "Z.csv")
+if data == "new":
+    d_path = os.path.join(data_dir, "satellite.csv")
+    if os.path.exists(d_path):
+        satellite_df = pd.read_csv(d_path)
+        print("Satellite data loaded:", satellite_df.shape)
+
+        # Convert to numpy and normalize
+        D = satellite_df.iloc[:, 1:].to_numpy()
+        D = np.subtract(D, np.mean(D, axis=0))  # mean centering
+        D = D / np.std(D, axis=0)               # standardization
+    else:
+        print(f"Warning: satellite.csv not found at {d_path}")
+        D = None
+else:
+    D = None  # Optional: in case you reference D later
 
 ## Response matrix: microbial abundance data 
 Y = pd.read_csv(y_path).to_numpy()  
@@ -53,7 +69,10 @@ X = pd.read_csv(x_path).iloc[:,1:].to_numpy()
 X = np.subtract(X, np.mean(X, axis = 0)) # mean centering
 X = X/np.std(X,axis=0)                   # scaling 
 
-
+#satellite data
+#D = pd.read_csv(d_path).iloc[:,1:].to_numpy()    
+#D = np.subtract(D, np.mean(D, axis = 0)) # mean centering
+#D = D/np.std(D,axis=0)    
 ## Spatio-temporal indicators
 Z = pd.read_csv(z_path)
 I = Z.to_numpy()[:,range(1,Z.shape[1])]   

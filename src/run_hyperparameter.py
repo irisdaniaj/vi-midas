@@ -9,16 +9,24 @@ from concurrent.futures import ProcessPoolExecutor
 # -------------------------
 # Read mode from config_mode.txt
 config_file = "config_mode.txt"
-mode = "original"  # Default to "original"
 if os.path.exists(config_file):
     with open(config_file, "r") as f:
-        mode = f.read().strip()
+        lines = f.read().splitlines()
+        data_mode = lines[0].strip() if len(lines) > 0 else "original"
+        setting = int(lines[1]) if len(lines) > 1 else 1
 
 
 # -------------------------
 #  Set Paths Based on Mode
 # -------------------------
-base_results_dir = "../results/results_op/hyperparameter" if mode == "original" else "../results/results_new/hyperparameter"
+if data_mode == "original" and setting == 1:
+    base_results_dir = "../results/results_op/hyperparameter/"
+elif data_mode == "original" and setting == 2: # ← adjust as needed
+    base_results_dir =  "../results/results_new/hyperparameter/"
+elif data_mode == "new" and setting == 2:
+    base_results_dir= "../results/results_new_var/hyperparameter/"
+
+#base_results_dir = "../results/results_op/hyperparameter" if data_mode == "original" else "../results/results_opd_nc/hyperparameter"
 csv_path = os.path.join(base_results_dir, "hyperparams.csv")
 model_dir = os.path.join(base_results_dir, "models")
 log_dir = os.path.join(base_results_dir, "logs")
@@ -64,8 +72,8 @@ for idx, row in params_df.iterrows():
 
     # Check if the model already exists
     if not model_exists(uid, sid_current):
-        print(f"Preparing command for mode: {mode} sid: {uid}, repeat: {repeat} (sid_current: {sid_current})")
-        cmd = f"python3 hyperparameter_tuning_fit.py {mode} {l} {seed_iteration} {sp_mean} {sp_var} {h_prop} {sid_current} {nsample_0} {uid}"
+        print(f"Preparing command for mode: {data_mode} setting {setting} ,sid: {uid}, repeat: {repeat} (sid_current: {sid_current})")
+        cmd = f"python3 hyperparameter_tuning_fit_viet.py {data_mode} {setting} {l} {seed_iteration} {sp_mean} {sp_var} {h_prop} {sid_current} {nsample_0} {uid}"
         commands.append(cmd)
     else:
         print(f"Skipping: Model {sid_current}_{uid} already exists.")

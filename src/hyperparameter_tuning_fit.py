@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Feb 27 12:42:08 2020
-
-@author: amishra
-"""
-
-
 # load required python module 
 import random    
 import pandas as pd
@@ -21,66 +12,75 @@ utils_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "utils"
 sys.path.append(utils_dir)
 import sub_fun as sf
 import vb_stan as vbfun
+# -------------------------
+#  Load Config or Parse CLI Arguments
+# -------------------------
+# -------------------------
+#  Load Config or Parse CLI Arguments
+# -------------------------
+config_file = os.path.join(os.path.dirname(__file__), "config_mode.txt")
+if os.path.exists(config_file):
+    with open(config_file, "r") as f:
+        lines = f.read().splitlines()
+        data_mode = lines[0].strip() if len(lines) > 0 else "original"
+        setting = int(lines[1]) if len(lines) > 1 else 1
+    # skip the first argument (script name), the rest are positional
+    remaining_args = sys.argv[1:]
+else:
+    parser = argparse.ArgumentParser(description="Run Stan Model with Original or New Data")
+    parser.add_argument("--mode", choices=["original", "new"], default="original", help="Choose dataset mode: 'original' or 'new'")
+    parser.add_argument("--setting", type=int, choices=[1, 2], default=1, help="Choose setting: 1 or 2")
+    args, remaining_args = parser.parse_known_args()
+    data_mode = args.mode
+    setting = args.setting
+
 
 # -------------------------
-#  Command-Line Argument for Path Selection
-# -------------------------
-parser = argparse.ArgumentParser(description="Run Stan Model with Original or New Data")
-parser.add_argument("mode", nargs="?", choices=["original", "new"], default="original", help="Choose dataset mode: 'original' or 'new' (default: original)")
-args, remaining_args = parser.parse_known_args()
-# -------------------------
-#  Set Paths Based on Mode
+#  Set Paths Based on Data and Setting
+
 # -------------------------
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-if args.mode == "original":
+if data_mode == "original":
     data_dir = os.path.join(base_dir, "data/data_op/")
-    stan_mod= os.path.join(base_dir, "stan_model/NB_microbe_ppc.stan")
-    results_dir = os.path.join(base_dir, "results/results_op/hyperparameter/")
-else:  # mode == "new"
+    if setting == 1:
+        stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc.stan")
+        results_dir = os.path.join(base_dir, "results/results_op/hyperparameter/")
+    elif setting == 2:
+        stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test.stan")  # ← adjust as needed
+        results_dir = os.path.join(base_dir, "results/results_new/hyperparameter/")
+elif data_mode == "new":
     data_dir = os.path.join(base_dir, "data/data_new/")
-    stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test.stan")
-    results_dir = os.path.join(base_dir, "results/results_new/")
+    if setting == 2:
+        stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test_new.stan")  # ← adjust as needed
+        results_dir = os.path.join(base_dir, "results/results_new_var/hyperparameter/")
 
+
+# Create necessary folders
 diag_dir = os.path.join(results_dir, "diagnostics/")
 model_dir = os.path.join(results_dir, "models/")
-
 os.makedirs(results_dir, exist_ok=True)
 os.makedirs(diag_dir, exist_ok=True)
 os.makedirs(model_dir, exist_ok=True)
 
-# Get setting parameter for running the script
+# Print confirmation
+print(f"📁 Using data mode: '{data_mode}' and setting: {setting}")
+print(f"📂 Data directory: {data_dir}")
+print(f"📄 Stan model file: {stan_mod}")
+print(f"📈 Results directory: {results_dir}")
+
+y_path= os.path.join(data_dir, "Y1.csv") #change the path of the data
+x_path = os.path.join(data_dir, "X.csv")
+z_path = os.path.join(data_dir, "Z.csv")
+d_path = os.path.join(data_dir, "satellite.csv")
+Y = pd.read_csv(y_path).to_numpy()  
+Y = Y[:,range(2,Y.shape[1])]
+Y = Y.astype('int')
+
 print(sys.argv)
 [l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o, sid] = map(float, remaining_args)
 uid = int(uid); nsample_o = int(nsample_o); m_seed = int(m_seed); l = int(l)
 sid = int(sid)
-
-
-'''
-# lanent_rank [l]; model seed [m_seed] 
-# regularization of the mean parameter [sp_mean]
-# regularization of the dispersion parameter [sp_var]
-# holdout proporion of the test sample [h_prop]
-# number of posterior samples from the variational posterior distribution [nsample_o]
-# identifier for the simulation seting: uid
-# identifier for the selected seting: sid
-'''
-
-## local test setting  
-# l = 2; m_seed = 123;  sp_mean = 10;  sp_var = 1; 
-# h_prop = 0.1;nsample_o = 100; uid = 123; sid = 2
-
-'''
-Import data for model fitting
-'''
-
-## Response matrix: microbial abundance data 
-y_path= os.path.join(data_dir, "Y1.csv") #change the path of the data
-x_path = os.path.join(data_dir, "X.csv")
-z_path = os.path.join(data_dir, "Z.csv")
-Y = pd.read_csv(y_path).to_numpy()  
-Y = Y[:,range(2,Y.shape[1])]
-Y = Y.astype('int')
 
 ## Computation of the geometric mean:  
 
@@ -99,7 +99,7 @@ Y = (Y.T+delta).T
 Y = Y.astype('int')
 
 ## Geochemical covariates 
-X = pd.read_csv(x_path).iloc[:,1:].to_numpy()    
+X = pd.read_csv(x_path).iloc[:,1:].to_numpy()    #ADD THE VARIABLE THAT GO INTO THE GEOCHEMICAL LATENT SPACE 
 X = np.subtract(X, np.mean(X, axis = 0)) # mean centering
 X = X/np.std(X,axis=0)                   # scaling 
 
@@ -107,7 +107,12 @@ X = X/np.std(X,axis=0)                   # scaling
 ## Spatio-temporal indicators
 Z = pd.read_csv(z_path)
 I = Z.to_numpy()[:,range(1,Z.shape[1])]   
-     
+
+#satellite data AGGIUSTARE PWE IL NUOVO PATH E PENSARE COME DEVO TRASFORMARLE 
+D = pd.read_csv(d_path).iloc[:,1:].to_numpy()    
+D = np.subtract(D, np.mean(D, axis = 0)) # mean centering
+D = D/np.std(D,axis=0)    
+
 # B biome indicator 
 Ifac = I[:,0]
 fac = np.unique(Ifac)
@@ -129,8 +134,6 @@ fac = np.unique(Ifac)
 Q = np.zeros((X.shape[0], fac.shape[0]))
 for i in range(fac.shape[0]):
     Q[np.where(Ifac == fac[i]),i] = 1
-    
-
     
 '''
 Full data analysis, model diagnostic and posterior predictive check for model validity
@@ -155,13 +158,17 @@ Y_vad = np.multiply(holdout_mask, Y)         ## valiation set
 Prepare input data, compile stan model and define output file (to store the model output)
 '''
 
-data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], \
+if data_mode == "new" and setting == 2: 
+    data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], "d": D.shape[1], \
+            'b':B.shape[1], 'Y':Y, 'X':X, 'S':S, 'B':B, 'Yi':Yi, 'T':T_i, 'Bs':Bs, "D": D, \
+            'holdout': holdout_mask, 'sp_mean' : sp_mean, 'sp_var' : sp_var,\
+            'm':Q.shape[1], 'Q': Q}
+else:
+    data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], \
         'b':B.shape[1], 'Y':Y, 'X':X, 'S':S, 'B':B, 'Yi':Yi, 'T':T_i, 'Bs':Bs, \
         'holdout': holdout_mask, 'sp_mean' : sp_mean, 'sp_var' : sp_var,\
         'm':Q.shape[1], 'Q': Q}
 
-#stan_mod = os.path.join(model_path, 'NB_microbe_ppc.stan')
-#fname = 'NB_microbe_ppc.stan'          # stan model file name
 model_NB = open(stan_mod, 'r').read()     # read model file 
 mod = pystan.StanModel(model_code=model_NB) # model compile 
 
@@ -169,7 +176,6 @@ mod = pystan.StanModel(model_code=model_NB) # model compile
 sample_file_o = os.path.join(diag_dir, f"{uid}_{sid}_nb_sample.csv")
 diag_file_o = os.path.join(diag_dir, f"{uid}_{sid}_nb_diag.csv")
 model_output_file = os.path.join(model_dir, f"{uid}_{sid}_model_nb_cvtest.pkl")
-
 
 ## check for model fit error ; try catch and then proceed with evaluation 
 try:
@@ -187,7 +193,6 @@ try:
 #        pickle.dump(NB_vb, f)
 #    with open(fname_o, 'rb') as f:
 #        results = pickle.load(f)
-        
     '''
     Evaluate model parameters estimate based on out of sample log-posterior predictive check [LLPD]
     Using posterior mean estimate 'mu_sample'  - generate predicted value of Y 
@@ -214,11 +219,25 @@ try:
             for j in range(q):
                 if holdout_mask[i,j] == 1: 
                     # compute mean for the NB distribution 
-                    mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
-                        np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
-                        np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
-                        np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
-                        np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:]));
+                    if data_mode == "original" and setting == 1: 
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:]));
+                    if data_mode == "original" and setting == 2: 
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],np.matmul(parma_sample['A_geo'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:]));
+                    if data_mode == "new" and setting == 2: 
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],np.matmul(parma_sample['A_geo'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
                     if Yi[i,j] == 1:
                         temp = Yi[i,:];temp[j] = 0;
                         mu_sample[s_ind, i,j] = mu_sample[s_ind,i,j] + np.matmul( \
@@ -238,11 +257,26 @@ try:
     muest1 = np.zeros((n,q))
     for i in range(n):
         for j in range(q):
-            muest[i,j] =  parma_mean['C0'][j] + \
-                np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
-                np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
-                np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
-                np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            if data_mode == "original" and setting == 1:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            elif data_mode == "original" and setting == 2:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],np.matmul(parma_mean['A_geo'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            if data_mode == "new" and setting == 2: 
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],np.matmul(parma_mean['A_geo'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            
             if Yi[i,j] == 1:
                 temp = Yi[i,:];temp[j] = 0;
                 muest1[i,j] = np.matmul( parma_mean['L_i'][j,:], np.matmul(parma_mean['L_sp'].T,temp))/(Bs[i]-1.0); 
@@ -282,4 +316,3 @@ except ZeroDivisionError:
     # save output flag 
     print("An exception occurred")        
     
-            

@@ -7,16 +7,22 @@ from concurrent.futures import ProcessPoolExecutor
 #  Read Mode from Config File
 # -------------------------
 config_file = "config_mode.txt"
-mode = "original"  # Default
-
 if os.path.exists(config_file):
     with open(config_file, "r") as f:
-        mode = f.read().strip()
+        lines = f.read().splitlines()
+        data_mode = lines[0].strip() if len(lines) > 0 else "original"
+        setting = int(lines[1]) if len(lines) > 1 else 1
+
+
 # -------------------------
 #  Set Paths Based on Mode
 # -------------------------
-base_results_dir = "../results/results_op/component" if mode == "original" else "../results/results_new/component"
-#csv_path = os.path.join(base_results_dir, "hyperparams.csv")
+if data_mode == "original" and setting == 1:
+    base_results_dir = "../results/results_op/component/"
+elif data_mode == "original" and setting == 2: # ← adjust as needed
+    base_results_dir =  "../results/results_new/component/"
+elif data_mode == "new" and setting == 2:
+    base_results_dir= "../results/results_new_var/component/"
 model_dir = os.path.join(base_results_dir, "models")
 log_dir = os.path.join(base_results_dir, "logs")
 
@@ -68,7 +74,7 @@ def run_command(params):
             f.write(f"Skipping: Model {model_file} already exists.\n")
         return {"command": None, "stdout": "", "stderr": ""}
 
-    command = f"python3 component_contribution_fit_new.py {mode} {l} {sp_mean} {sp_var} {h_prop} {nsample_0} {m_seed} {mtype} {uid}"
+    command = f"python3 component_contribution_fit_new.py {data_mode} {setting} {l} {sp_mean} {sp_var} {h_prop} {nsample_0} {m_seed} {mtype} {uid}"
     print(f"Executing: {command}")
 
     try:
@@ -98,11 +104,16 @@ def run_command(params):
 
 # **Step 1: Generate list of models that need to be computed**
 # 🔹 Ensure only mtype = 6 runs when mode is "new"
-if mode == "new":
+if data_mode == "new" and setting == 2:
     commands_to_run = [
-        (6, m_seed) for m_seed in range(20) if not model_exists(6, m_seed)
+        (7, m_seed) for m_seed in range(20) if not model_exists(7, m_seed)
     ]
-else:
+elif data_mode == "new" and setting == 2:
+    commands_to_run = [
+        (6, m_seed) for m_seed in range(6) for m_seed in range(20)
+        if not model_exists(6, m_seed)
+    ]
+elif data_mode == "original" and setting == 1: 
     commands_to_run = [
         (mtype, m_seed) for mtype in range(6) for m_seed in range(20)
         if not model_exists(mtype, m_seed)

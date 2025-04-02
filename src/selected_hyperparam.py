@@ -5,7 +5,7 @@ from concurrent.futures import ProcessPoolExecutor
 
 
 # Paths
-hyperparam_file = "../notebooks/selected_hyperparam"
+hyperparam_file = "eesha/selected_hyperparam"
 #model_dir = "../results/component/models/"
 #log_dir = "../results/component/logs/"
 

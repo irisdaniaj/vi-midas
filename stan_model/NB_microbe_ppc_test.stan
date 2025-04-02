@@ -6,7 +6,7 @@ data {
     int l; // number of latent variable 
     int s; // number of seasonal indicators
     int b; // number of biome indicators 
-    int m; // number of monnth indicators 
+    int m; // number of month indicators 
     real sp_mean; // regularize in mean parameter of the model 
     real sp_var; // regularize in variance parameter of the model 
        

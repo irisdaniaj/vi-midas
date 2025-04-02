@@ -3,10 +3,12 @@ import pandas as pd
 import os 
 import argparse
 
-parser = argparse.ArgumentParser(description="Run Hyperparameter Tuning with Original or New Data")
-parser.add_argument("mode", nargs="?", choices=["original", "new"], default="original",
-                    help="Choose dataset mode: 'original' or 'new' (default: original)")
-args = parser.parse_args()
+config_file = "config_mode.txt"
+if os.path.exists(config_file):
+    with open(config_file, "r") as f:
+        lines = f.read().splitlines()
+        data_mode = lines[0].strip() if len(lines) > 0 else "original"
+        setting = int(lines[1]) if len(lines) > 1 else 1
 
 # Hyperparameter ranges
 lambda_range = np.logspace(np.log10(0.01), np.log10(3000), num=50)  # Log scale for λ
@@ -23,8 +25,12 @@ for i in range(50):
     hyperparams.append({"λ": l, "ϑ": theta, "k": k})
 
 # Define the output path
-output_dir = "../results/results_op/hyperparameter/" if args.mode == "original" else "../results/results_new/"
-
+if data_mode == "original" and setting == 1:
+    output_dir = "../results/results_op/hyperparameter/"
+elif data_mode == "original" and setting == 2: # ← adjust as needed
+    output_dir =  "../results/results_new/hyperparameter/"
+elif data_mode == "new" and setting == 2:
+    output_dir= "../results/results_new_var/hyperparameter/"
 #output_dir = "../results/hyperparameter"
 
 # Check if the results folder exists, create it if not

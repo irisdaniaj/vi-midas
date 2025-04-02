@@ -2,16 +2,25 @@ import os
 import pickle
 import subprocess
 from concurrent.futures import ProcessPoolExecutor
-config_file = "config_mode.txt"
-#mode = "original"  # Default
 
+config_file = "config_mode.txt"
 if os.path.exists(config_file):
     with open(config_file, "r") as f:
-        mode = f.read().strip()
+        lines = f.read().splitlines()
+        data_mode = lines[0].strip() if len(lines) > 0 else "original"
+        setting = int(lines[1]) if len(lines) > 1 else 1
+
+
 # -------------------------
 #  Set Paths Based on Mode
 # -------------------------
-base_results_dir = "../results/results_op/sensitivity" if mode == "original" else "../results/results_new/sensitivity"
+if data_mode == "original" and setting == 1:
+    base_results_dir = "../results/results_op/sensitivity/"
+elif data_mode == "original" and setting == 2: # ← adjust as needed
+    base_results_dir =  "../results/results_new/sensitivity/"
+elif data_mode == "new" and setting == 2:
+    base_results_dir= "../results/results_new_var/sensitivity/"
+
 #csv_path = os.path.join(base_results_dir, "hyperparams.csv")
 model_dir = os.path.join(base_results_dir, "models")
 log_dir = os.path.join(base_results_dir, "logs")
@@ -20,7 +29,7 @@ log_dir = os.path.join(base_results_dir, "logs")
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
 # Paths
-hyperparam_file = "../notebooks/selected_hyperparam"
+hyperparam_file = "../notebooks/selected_hyperparam1"
 #model_dir = "../results/sensitivity/models/"
 #log_dir = "../results/sensitivity/logs/"
 
@@ -64,7 +73,7 @@ def run_command(sed):
             f.write(f"Skipping: Model {model_file} already exists.\n")
         return {"command": None, "stdout": "", "stderr": ""}
 
-    command = f"python3 model_sensitivity_fit.py {l} {sed} {sp_mean} {sp_var} {h_prop} {uid} {nsample_o}"
+    command = f"python3 model_sensitivity_fit.py {data_mode} {setting} {l} {sed} {sp_mean} {sp_var} {h_prop} {uid} {nsample_o}"
     print(f"Executing: {command}")
 
     try:
