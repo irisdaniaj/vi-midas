@@ -54,6 +54,9 @@ elif data_mode == "new":
     if setting == 2:
         stan_mod = os.path.join(base_dir, "stan_model/")  # ← adjust as needed
         results_dir = os.path.join(base_dir, "results/results_new_var/component/")
+    elif setting == 1:
+        stan_mod = os.path.join(base_dir, "stan_model/")  # ← adjust as needed
+        results_dir = os.path.join(base_dir, "results/results_new_var/component/")
 
 
 # Create necessary folders
@@ -193,6 +196,9 @@ if mtype == 6:
 if mtype == 7: 
     fname = os.path.join(stan_mod, "NB_microbe_ppc_test_new.stan")
     tol_rel_obj_set = 0.01   
+if mtype == 8: 
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_new.stan")
+    tol_rel_obj_set = 0.01   
 
 model_NB = open(fname, 'r').read()          # read model file 
 mod = pystan.StanModel(model_code=model_NB) # model compile 
@@ -305,6 +311,14 @@ try:
                             np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
                             np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:]));
                     
+                    if mtype == 8:
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
+                    
                     if mtype != 1:
                         if Yi[i,j] == 1:
                             temp = Yi[i,:];temp[j] = 0;
@@ -376,6 +390,14 @@ try:
             if mtype == 7:
                 muest[i,j] =  parma_mean['C0'][j] + \
                     np.matmul(X[i,],np.matmul(parma_mean['A_geo'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            
+            if mtype == 8:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
                     np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \

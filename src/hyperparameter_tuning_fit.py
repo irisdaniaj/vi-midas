@@ -54,6 +54,9 @@ elif data_mode == "new":
     if setting == 2:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test_new.stan")  # ← adjust as needed
         results_dir = os.path.join(base_dir, "results/results_new_var/hyperparameter/")
+    elif setting == 1:
+        stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_new.stan")  # ← adjust as needed
+        results_dir = os.path.join(base_dir, "results/results_new_var/hyperparameter/")
 
 
 # Create necessary folders
@@ -158,7 +161,7 @@ Y_vad = np.multiply(holdout_mask, Y)         ## valiation set
 Prepare input data, compile stan model and define output file (to store the model output)
 '''
 
-if data_mode == "new" and setting == 2: 
+if data_mode == "new": 
     data = {'n':Y.shape[0],'q':Y.shape[1],'p':X.shape[1],'l': l,'s':S.shape[1], "d": D.shape[1], \
             'b':B.shape[1], 'Y':Y, 'X':X, 'S':S, 'B':B, 'Yi':Yi, 'T':T_i, 'Bs':Bs, "D": D, \
             'holdout': holdout_mask, 'sp_mean' : sp_mean, 'sp_var' : sp_var,\
@@ -237,6 +240,13 @@ try:
                             np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
                             np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
                             np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:]));
+                    if data_mode == "new" and setting == 1: 
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
                             np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
                     if Yi[i,j] == 1:
                         temp = Yi[i,:];temp[j] = 0;
@@ -275,6 +285,13 @@ try:
                     np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            if data_mode == "new" and setting == 1:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
             
             if Yi[i,j] == 1:
