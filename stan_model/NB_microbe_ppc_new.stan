@@ -39,6 +39,7 @@ model {
   row_vector[q] mu;
   row_vector[l] temp;
   for(j in 1:q){
+      C_geo[j] ~ double_exponential(0, sp_mean); //  make it sparse 
       L_i[j]   ~  double_exponential(0, sp_mean);  //  make it sparse 
       L_sp[j,]   ~  double_exponential(0, sp_mean);  // make it sparse 
   }

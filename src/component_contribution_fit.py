@@ -45,18 +45,18 @@ if data_mode == "original":
     data_dir = os.path.join(base_dir, "data/data_op/")
     if setting == 1:
         stan_mod = os.path.join(base_dir, "stan_model/") #look out for this 
-        results_dir = os.path.join(base_dir, "results/results_op/component/")
+        results_dir = os.path.join(base_dir, "results/results_old_c/component/")
     elif setting == 2:
         stan_mod = os.path.join(base_dir, "stan_model/")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new/component/")
+        results_dir = os.path.join(base_dir, "results/results_old_nc/component/")
 elif data_mode == "new":
     data_dir = os.path.join(base_dir, "data/data_new/")
     if setting == 2:
         stan_mod = os.path.join(base_dir, "stan_model/")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new_var/component/")
+        results_dir = os.path.join(base_dir, "results/results_new_var_nc/component/")
     elif setting == 1:
         stan_mod = os.path.join(base_dir, "stan_model/")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new_var/component/")
+        results_dir = os.path.join(base_dir, "results/results_new_var_c/component/")
 
 
 # Create necessary folders
@@ -173,32 +173,50 @@ else:
         'm':Q.shape[1], 'Q': Q}
 
 if mtype == 0:
-    fname = os.path.join(stan_mod, 'NB_microbe_ppc.stan') ## stan model file name
+    fname = os.path.join(stan_mod, 'NB_microbe_ppc.stan') ## stan model file name all component old data
     tol_rel_obj_set = 0.01        # convergence criteria vb
 if mtype == 1:
-    fname = os.path.join(stan_mod,'NB_microbe_ppc_nointer.stan')
+    fname = os.path.join(stan_mod,'NB_microbe_ppc_nointer.stan') #direct copling, no interaction, old data
     tol_rel_obj_set = 0.01
 if mtype == 2:
-    fname = os.path.join(stan_mod, 'NB_microbe_ppc-G.stan')
+    fname = os.path.join(stan_mod, 'NB_microbe_ppc-G.stan') #direct copling, no gechemiacl, old data
     tol_rel_obj_set = 0.01
 if mtype == 3:
-    fname = os.path.join(stan_mod, 'NB_microbe_ppc-1.stan')
+    fname = os.path.join(stan_mod, 'NB_microbe_ppc-1.stan') #direct copling, no season, old data
     tol_rel_obj_set = 0.01
 if mtype == 4:
-    fname = os.path.join(stan_mod, 'NB_microbe_ppc-2.stan')
+    fname = os.path.join(stan_mod, 'NB_microbe_ppc-2.stan') #direct copling, no biome, old data
     tol_rel_obj_set = 0.01
 if mtype == 5:
-    fname = os.path.join(stan_mod, 'NB_microbe_ppc-3.stan')
+    fname = os.path.join(stan_mod, 'NB_microbe_ppc-3.stan') #direct copling, no month, old data
     tol_rel_obj_set = 0.01
 if mtype == 6:
-    fname = os.path.join(stan_mod, "NB_microbe_ppc_test.stan")
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_test.stan") #no coupling old data 
     tol_rel_obj_set = 0.01   
 if mtype == 7: 
-    fname = os.path.join(stan_mod, "NB_microbe_ppc_test_new.stan")
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_test_new.stan") #no coupling new data
     tol_rel_obj_set = 0.01   
 if mtype == 8: 
-    fname = os.path.join(stan_mod, "NB_microbe_ppc_new.stan")
-    tol_rel_obj_set = 0.01   
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_new.stan")#direct coupling,all component new data 
+    tol_rel_obj_set = 0.01  
+if mtype == 9: #stan_model/NB_microbe_pcc_new_nointer.stan
+    fname = os.path.join(stan_mod, "NB_microbe_pcc_new_nointer.stan")#direct coupling, no interacttion new data 
+    tol_rel_obj_set = 0.01  
+if mtype == 10: 
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_new_G.stan")#direct coupling,no geochemical new data 
+    tol_rel_obj_set = 0.01  
+if mtype == 11: 
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_new_1.stan")#direct coupling,no seasonal new data 
+    tol_rel_obj_set = 0.01  
+if mtype == 12: 
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_new_2.stan")#direct coupling,no biome new data 
+    tol_rel_obj_set = 0.01  
+if mtype == 13: 
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_new_3.stan")#direct coupling,no month new data 
+    tol_rel_obj_set = 0.01  
+if mtype == 14: 
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_new_4.stan")#direct coupling,no satellite new data 
+    tol_rel_obj_set = 0.01  
 
 model_NB = open(fname, 'r').read()          # read model file 
 mod = pystan.StanModel(model_code=model_NB) # model compile 
@@ -319,7 +337,50 @@ try:
                             np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
                             np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
                     
-                    if mtype != 1:
+                    if mtype == 9:
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
+                    
+                    if mtype == 10:
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
+                    
+                    if mtype == 11:
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
+                    
+                    if mtype == 12:
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
+                    
+                    if mtype == 13:
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(D[i,],np.matmul(parma_sample['A_d'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:]));
+                    
+                    if mtype == 14:
+                        mu_sample[s_ind, i,j] =  parma_sample['C0'][s_ind, j] + \
+                            np.matmul(X[i,],parma_sample['C_geo'][s_ind,j,:]) + \
+                            np.matmul(S[i,],np.matmul(parma_sample['A_s'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(Q[i,],np.matmul(parma_sample['A_m'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])) + \
+                            np.matmul(B[i,],np.matmul(parma_sample['A_b'][s_ind,:,:],parma_sample['L_sp'][s_ind,j,:])); 
+                    
+                    if mtype not in [1, 9]:
                         if Yi[i,j] == 1:
                             temp = Yi[i,:];temp[j] = 0;
                             mu_sample[s_ind, i,j] = mu_sample[s_ind,i,j] + np.matmul( \
@@ -403,8 +464,50 @@ try:
                     np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
                     np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
             
+            if mtype == 9:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
             
-            if mtype != 1:
+            if mtype == 10:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            
+            if mtype == 11:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            
+            if mtype == 12:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:]));
+            
+            if mtype == 13:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(D[i,],np.matmul(parma_mean['A_d'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            
+            if mtype == 14:
+                muest[i,j] =  parma_mean['C0'][j] + \
+                    np.matmul(X[i,],parma_mean['C_geo'][j,:]) + \
+                    np.matmul(S[i,],np.matmul(parma_mean['A_s'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(Q[i,],np.matmul(parma_mean['A_m'],parma_mean['L_sp'][j,:])) + \
+                    np.matmul(B[i,],np.matmul(parma_mean['A_b'],parma_mean['L_sp'][j,:]));
+            
+            if mtype not in [1, 9]:
                 if Yi[i,j] == 1:
                     temp = Yi[i,:];temp[j] = 0;
                     muest1[i,j] = np.matmul( parma_mean['L_i'][j,:], np.matmul(parma_mean['L_sp'].T,temp))/(Bs[i]-1.0); 

@@ -45,18 +45,18 @@ if data_mode == "original":
     data_dir = os.path.join(base_dir, "data/data_op/")
     if setting == 1:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc.stan")
-        results_dir = os.path.join(base_dir, "results/results_op/hyperparameter/")
+        results_dir = os.path.join(base_dir, "results/results_old_c/hyperparameter/")
     elif setting == 2:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test.stan")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new/hyperparameter/")
+        results_dir = os.path.join(base_dir, "results/results_old_nc/hyperparameter/")
 elif data_mode == "new":
     data_dir = os.path.join(base_dir, "data/data_new/")
     if setting == 2:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test_new.stan")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new_var/hyperparameter/")
+        results_dir = os.path.join(base_dir, "results/results_new_var_nc/hyperparameter/")
     elif setting == 1:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_new.stan")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new_var/hyperparameter/")
+        results_dir = os.path.join(base_dir, "results/results_new_var_c/hyperparameter/")
 
 
 # Create necessary folders

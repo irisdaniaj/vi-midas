@@ -30,7 +30,7 @@ log_dir = os.path.join(base_results_dir, "logs")
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
 # Paths
-hyperparam_file = "../notebooks/selected_hyperparam"
+hyperparam_file = f"../notebooks/selected_hyperparam_s{setting}"
 #model_dir = "../results/component/models/"
 #log_dir = "../results/component/logs/"
 
@@ -74,7 +74,7 @@ def run_command(params):
             f.write(f"Skipping: Model {model_file} already exists.\n")
         return {"command": None, "stdout": "", "stderr": ""}
 
-    command = f"python3 component_contribution_fit_new.py {data_mode} {setting} {l} {sp_mean} {sp_var} {h_prop} {nsample_0} {m_seed} {mtype} {uid}"
+    command = f"python3 component_contribution_fit.py {data_mode} {setting} {l} {sp_mean} {sp_var} {h_prop} {nsample_0} {m_seed} {mtype}"
     print(f"Executing: {command}")
 
     try:
@@ -108,7 +108,12 @@ if data_mode == "new" and setting == 2:
     commands_to_run = [
         (7, m_seed) for m_seed in range(20) if not model_exists(7, m_seed)
     ]
-elif data_mode == "new" and setting == 2:
+elif data_mode == "new" and setting == 1:
+    commands_to_run = [
+        (mtype, m_seed) for mtype in range(8, 15) for m_seed in range(20)
+        if not model_exists(mtype, m_seed)
+    ]
+elif data_mode == "original" and setting == 2:
     commands_to_run = [
         (6, m_seed) for m_seed in range(6) for m_seed in range(20)
         if not model_exists(6, m_seed)

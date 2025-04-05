@@ -45,18 +45,18 @@ if data_mode == "original":
     data_dir = os.path.join(base_dir, "data/data_op/")
     if setting == 1:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc.stan")
-        results_dir = os.path.join(base_dir, "results/results_op/sensitivity/")
+        results_dir = os.path.join(base_dir, "results/results_old_c/sensitivity/")
     elif setting == 2:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test.stan")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new/sensitivity/")
+        results_dir = os.path.join(base_dir, "results/results_old_nc/sensitivity/")
 elif data_mode == "new":
     data_dir = os.path.join(base_dir, "data/data_new/")
     if setting == 2:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_test_new.stan")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new_var/sensitivity/")
+        results_dir = os.path.join(base_dir, "results/results_new_var_nc/sensitivity/")
     elif setting == 1:
         stan_mod = os.path.join(base_dir, "stan_model/NB_microbe_ppc_new.stan")  # ← adjust as needed
-        results_dir = os.path.join(base_dir, "results/results_new_var/component/")
+        results_dir = os.path.join(base_dir, "results/results_new_var_c/component/")
 
 
 # Create necessary folders
