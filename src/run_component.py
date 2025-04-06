@@ -18,15 +18,18 @@ if os.path.exists(config_file):
 #  Set Paths Based on Mode
 # -------------------------
 if data_mode == "original" and setting == 1:
-    base_results_dir = "../results/results_op/component/"
+    base_results_dir = "../results/results_old_c/component/"
 elif data_mode == "original" and setting == 2: # ← adjust as needed
-    base_results_dir =  "../results/results_new/component/"
+    base_results_dir =  "../results/results_old_nc/component/"
 elif data_mode == "new" and setting == 2:
-    base_results_dir= "../results/results_new_var/component/"
+    base_results_dir= "../results/results_new_var_nc/component/"
+elif data_mode == "new" and setting == 1:
+    base_results_dir= "../results/results_new_var_c/component/"
 model_dir = os.path.join(base_results_dir, "models")
 log_dir = os.path.join(base_results_dir, "logs")
 
 # Ensure directories exist
+os.makedirs(base_results_dir, exist_ok=True)
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
 # Paths
