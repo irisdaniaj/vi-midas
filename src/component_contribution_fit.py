@@ -24,8 +24,8 @@ if os.path.exists(config_file):
         lines = f.read().splitlines()
         data_mode = lines[0].strip() if len(lines) > 0 else "original"
         setting = int(lines[1]) if len(lines) > 1 else 1
-    # skip the first argument (script name), the rest are positional
-    remaining_args = sys.argv[1:]
+    # Only keep the last 7 args for model parameters
+    remaining_args = sys.argv[-7:]
 else:
     parser = argparse.ArgumentParser(description="Run Stan Model with Original or New Data")
     parser.add_argument("--mode", choices=["original", "new"], default="original", help="Choose dataset mode: 'original' or 'new'")
