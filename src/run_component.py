@@ -114,8 +114,8 @@ if data_mode == "new" and setting == 2:
     ]
 elif data_mode == "new" and setting == 1:
     commands_to_run = [
-        (8, m_seed) for m_seed in range(1)
-        if not model_exists(8, m_seed)
+        (mtype, m_seed) for mtype in range(8, 15) for m_seed in range(20)
+        if not model_exists(mtype, m_seed)
     ]
 elif data_mode == "original" and setting == 2:
     commands_to_run = [
