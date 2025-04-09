@@ -12,7 +12,7 @@ if os.path.exists(config_file):
 
 
 # -------------------------
-#  Set Paths Based on Mode
+#  Set Paths Bam_seed on Mode
 # -------------------------
 if data_mode == "original" and setting == 1:
     base_results_dir = "../results/results_old_c/sensitivity/"
@@ -60,23 +60,23 @@ ninit = 50 # Number of initializations
 n_max_run = 12  # Limit parallel processes
 
 # Function to check if a model already exists
-def model_exists(sed):
-    model_path = os.path.join(model_dir, f"{uid}_{sed}_model_nb_cvtest.pkl")
+def model_exists(m_seed):
+    model_path = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb_cvtest.pkl")
     return os.path.exists(model_path)
 
 # Function to run a single model and log output
-def run_command(sed):
-    model_file = os.path.join(model_dir, f"{uid}_{sed}_model_nb_cvtest.pkl")
-    log_file = os.path.join(log_dir, f"sensitivity_run_{uid}_{sed}.txt")
+def run_command(m_seed):
+    model_file = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb_cvtest.pkl")
+    log_file = os.path.join(log_dir, f"sensitivity_run_{uid}_{m_seed}.txt")
 
     # Skip model if it already exists
-    if model_exists(sed):
+    if model_exists(m_seed):
         print(f"Skipping: Model {model_file} already exists.")
         with open(log_file, 'a') as f:
             f.write(f"Skipping: Model {model_file} already exists.\n")
         return {"command": None, "stdout": "", "stderr": ""}
 
-    command = f"python3 model_sensitivity_fit.py {data_mode} {setting} {l} {sed} {sp_mean} {sp_var} {h_prop} {uid} {nsample_o}"
+    command = f"python3 model_sensitivity_fit.py {data_mode} {setting} {l} {m_seed} {sp_mean} {sp_var} {h_prop} {uid} {nsample_o}"
     print(f"Executing: {command}")
 
     try:
@@ -108,9 +108,9 @@ def run_command(sed):
 commands_to_run = [] 
 for hset in range(hyperparam_data.shape[0]):
     for init_index in range(ninit):    # Changed from 'uid' to 'init_index'
-        sed = ninit*(hset + 1) + init_index
-        if not model_exists(sed):
-            commands_to_run.append(sed)
+        m_seed = ninit*(hset + 1) + init_index
+        if not model_exists(m_seed):
+            commands_to_run.append(m_seed)
 
 # Run jobs in parallel if there are models to compute
 if commands_to_run:
@@ -135,7 +135,7 @@ else:
 commands_to_run = [] 
 for hset in range(hyperparam_data.shape[0]):
     for init_index in range(ninit):    # Changed from 'uid' to 'init_index'
-        sed = ninit*(hset + 1) + init_index
-        if not model_exists(sed):
-            commands_to_run.append(sed)
+        m_seed = ninit*(hset + 1) + init_index
+        if not model_exists(m_seed):
+            commands_to_run.append(m_seed)
 """

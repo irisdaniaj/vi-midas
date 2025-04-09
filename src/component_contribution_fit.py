@@ -25,8 +25,8 @@ if os.path.exists(config_file):
         data_mode = lines[0].strip() if len(lines) > 0 else "original"
         setting = int(lines[1]) if len(lines) > 1 else 1
     # Only keep the last 7 args for model parameters
-    #remaining_args = sys.argv[-7:]
-    remaining_args = sys.argv[-6:]
+    remaining_args = sys.argv[-7:]
+    #remaining_args = sys.argv[-6:]
     #remaining_args = sys.argv[1:]  # skip script name
 
 else:
@@ -84,9 +84,9 @@ Y = Y[:,range(2,Y.shape[1])]
 Y = Y.astype('int')
 
 print(sys.argv)
-[l,sp_mean,sp_var, h_prop, sid, mtype] = map(float, remaining_args)
-m_seed = 123; uid = 30; mtype = int(mtype); l = int(l); sid = int(sid)
-#sid = int(sid)
+[l,sp_mean,sp_var, h_prop, m_seed, mtype, uid] = map(float, remaining_args)
+uid = int(uid); mtype = int(mtype); l = int(l); m_seed = int(m_seed)
+#m_seed = int(m_seed)
 
 errx = 1e-5
 delta  = np.empty(Y.shape[0])  
@@ -225,9 +225,9 @@ model_NB = open(fname, 'r').read()          # read model file
 mod = pystan.StanModel(model_code=model_NB) # model compile 
 
 # model output file 
-sample_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{sid}_nb_sample.csv")    ## posterior sample file 
-diag_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{sid}_nb_diag.csv")        ## variational bayes model diagnostic file 
-model_output_file = os.path.join(model_dir, f"{uid}_{mtype}_{sid}_model_nb_cvtest.pkl")
+sample_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{m_seed}_nb_sample.csv")    ## posterior sample file 
+diag_file_o = os.path.join(diag_dir, f"{uid}_{mtype}_{m_seed}_nb_diag.csv")        ## variational bayes model diagnostic file 
+model_output_file = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb_cvtest.pkl")
 
 ## check for model fit error ; try catch and then proceed with evaluation 
 ## check for model fit error ; try catch and then proceed with evaluation 
@@ -247,7 +247,7 @@ try:
 
     # save model output 
     #temp_fname_o = str(uid)+ '_' + str(mtype) + '_'+ str(m_seed) + '_'
-    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{sid}_model_nb.pkl") 
+    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb.pkl") 
     #with open(fname_o, 'wb') as f:
     #    pickle.dump(NB_vb, f)
     #with open(fname_o, 'rb') as f:
@@ -537,12 +537,12 @@ try:
     Yte_fit = np.multiply(holdout_mask, Yte_fit) 
     
     # save output 
-    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{sid}_model_nb_cvtest.pkl")  
+    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb_cvtest.pkl")  
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, mtype,\
                  Yte_fit, cv_test, Y, muest, Yte_cv, 0, 0], open(fname_o, "wb"))
 except ZeroDivisionError:
-    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{sid}_model_nb_cvtest.pkl")  
+    fname_o = os.path.join(model_dir, f"{uid}_{mtype}_{m_seed}_model_nb_cvtest.pkl")  
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, mtype, 0, 0,0,0,0,0,0], open(fname_o, "wb"))
     # save output flag 

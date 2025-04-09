@@ -37,7 +37,7 @@ else:
 
 
 # -------------------------
-#  Set Paths Based on Data and Setting
+#  Set Paths Bam_seed on Data and Setting
 
 # -------------------------
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -74,8 +74,8 @@ print(f"📄 Stan model file: {stan_mod}")
 print(f"📈 Results directory: {results_dir}")
 
 print(sys.argv)
-[l,sed,sp_mean,sp_var, h_prop, uid, nsample_o] = map(float, remaining_args)
-uid = int(uid); nsample_o = int(nsample_o); m_seed = 123; l = int(l)
+[l,m_seed,sp_mean,sp_var, h_prop, uid, nsample_o] = map(float, remaining_args)
+uid = int(uid); nsample_o = int(nsample_o); m_seed = int(m_seed); l = int(l)
 #m_seed = int(m_seed)
 
 y_path= os.path.join(data_dir, "Y1.csv") #change the path of the data
@@ -171,9 +171,9 @@ model_NB = open(stan_mod, 'r').read()     # read model file
 mod = pystan.StanModel(model_code=model_NB) # model compile 
 
 # model output file 
-sample_file_o = os.path.join(diag_dir, f"{uid}_{sed}_nb_sample.csv")
-diag_file_o = os.path.join(diag_dir, f"{uid}_{sed}_nb_diag.csv")
-model_output_file = os.path.join(model_dir, f"{uid}_{sed}_model_nb_cvtest.pkl")
+sample_file_o = os.path.join(diag_dir, f"{uid}_{m_seed}_nb_sample.csv")
+diag_file_o = os.path.join(diag_dir, f"{uid}_{m_seed}_nb_diag.csv")
+model_output_file = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb_cvtest.pkl")
 
 ## check for model fit error ; try catch and then proceed with evaluation 
 try:
@@ -186,13 +186,13 @@ try:
                     diagnostic_file = diag_file_o, eval_elbo = 50, \
                     output_samples = nsample_o)
     # save model output 
-    fname_o = os.path.join(model_dir, f"{uid}_{sed}_model_nb.pkl")
+    fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb.pkl")
 #    with open(fname_o, 'wb') as f:
 #        pickle.dump(NB_vb, f)
 #    with open(fname_o, 'rb') as f:
 #        results = pickle.load(f)
     '''
-    Evaluate model parameters estimate based on out of sample log-posterior predictive check [LLPD]
+    Evaluate model parameters estimate bam_seed on out of sample log-posterior predictive check [LLPD]
     Using posterior mean estimate 'mu_sample'  - generate predicted value of Y 
     Test statistics using predicted log-likelihood on the sample data 
     '''
@@ -317,13 +317,13 @@ try:
     
     
     # save output 
-    fname_o = os.path.join(model_dir, f"{uid}_{sed}_model_nb_cvtest.pkl")
+    fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb_cvtest.pkl")
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, nsample_o,\
                  Yte_fit, cv_test], open(fname_o, "wb"))
     # compute average LpmF distance
 except ZeroDivisionError:
-    fname_o = os.path.join(model_dir, f"{uid}_{sed}_model_nb_cvtest.pkl")
+    fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb_cvtest.pkl")
     pickle.dump([holdout_mask, 0, 0, 0, l,m_seed,sp_mean,\
                  sp_var, h_prop, uid, nsample_o, 0, 0], open(fname_o, "wb"))
     # save output flag 
