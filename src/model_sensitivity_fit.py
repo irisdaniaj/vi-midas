@@ -187,10 +187,10 @@ try:
                     output_samples = nsample_o)
     # save model output 
     fname_o = os.path.join(model_dir, f"{uid}_{m_seed}_model_nb.pkl")
-#    with open(fname_o, 'wb') as f:
-#        pickle.dump(NB_vb, f)
-#    with open(fname_o, 'rb') as f:
-#        results = pickle.load(f)
+    with open(fname_o, 'wb') as f:
+        pickle.dump(NB_vb, f)
+    with open(fname_o, 'rb') as f:
+        results = pickle.load(f)
     '''
     Evaluate model parameters estimate bam_seed on out of sample log-posterior predictive check [LLPD]
     Using posterior mean estimate 'mu_sample'  - generate predicted value of Y 

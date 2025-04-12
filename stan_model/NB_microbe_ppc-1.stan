@@ -26,9 +26,9 @@ parameters{
     vector[p] C_geo[q];    // coefficient matrix geo-chemical factors 
     matrix[q,l] L_sp;    // coefficient matrix latent variable for the species
     vector[l] L_i[q];  // latent variable for the interaction coefficient 
-    // matrix[s,l] A_s;  // latent variable for seasonal indicators  
+    // matrix[s,l] A_s;  // latent variable for province indicators  pro
     matrix[b,l] A_b;  // latent variable for biome indicators 
-    matrix[m,l] A_m;  // latent variable for biome indicators 
+    matrix[m,l] A_m;  // latent variable for month indicators 
     vector<lower = 0, upper = 2>[q] tau; // positive variable for the shape parameter
     vector<lower = 0>[q] phi; // dispersion parameter of the negative binomial regression
 }

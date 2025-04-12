@@ -209,7 +209,7 @@ if mtype == 10:
     fname = os.path.join(stan_mod, "NB_microbe_ppc_new_G.stan")#direct coupling,no geochemical new data 
     tol_rel_obj_set = 0.01  
 if mtype == 11: 
-    fname = os.path.join(stan_mod, "NB_microbe_ppc_new_1.stan")#direct coupling,no seasonal new data 
+    fname = os.path.join(stan_mod, "NB_microbe_ppc_new_1.stan")#direct coupling,no province new data 
     tol_rel_obj_set = 0.01  
 if mtype == 12: 
     fname = os.path.join(stan_mod, "NB_microbe_ppc_new_2.stan")#direct coupling,no biome new data 

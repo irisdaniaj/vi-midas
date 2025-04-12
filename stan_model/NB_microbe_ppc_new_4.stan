@@ -28,7 +28,7 @@ parameters{
     vector[p] C_geo[q];    // latent variable for geo-chemical factors 
     matrix[q,l] L_sp;    // coefficient matrix latent variable for the species
     vector[l] L_i[q];  // latent variable for the interaction coefficient 
-    matrix[s,l] A_s;  // latent variable for seasonal indicators  
+    matrix[s,l] A_s;  // latent variable for province indicators  
     matrix[b,l] A_b;  // latent variable for biome indicators 
     matrix[m,l] A_m;  // latent variable for month indicators 
     // matrix[d, l] A_d; // latent variable for satellite indicators 
