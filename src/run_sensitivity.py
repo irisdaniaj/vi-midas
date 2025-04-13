@@ -32,7 +32,7 @@ os.makedirs(base_results_dir, exist_ok=True)
 os.makedirs(model_dir, exist_ok=True)
 os.makedirs(log_dir, exist_ok=True)
 # Paths
-hyperparam_file = f"../notebooks/selected_hyperparam_{data_mode}_s{setting}.pkl"
+hyperparam_file = f"../notebooks/selected_hyperparam_{data_mode}_s{setting}"
 #model_dir = "../results/sensitivity/models/"
 #log_dir = "../results/sensitivity/logs/"
 
