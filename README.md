@@ -20,6 +20,8 @@ pip install -r requirements.txt
 ---
 ## Reproducing results 
 
+In the `config_mode.txt` file please write in the first line which data you want to analyze "original" or "new" and then select then which model to use "1" direct coupling, "2" no direct coupling.
+
 The next steps will reproduce the results of [VI-MIDAS](https://github.com/amishra-stats/vi-midas/tree/main)
 
 ```
@@ -53,6 +55,7 @@ This submits `run_sensitivity.py` as a batch job, which automates the execution 
 
 ### Analysis 
 
+Before the analysis select which dataset and which methodology result you want to analysize in the  `notebooks/config_mode.txt` file. 
 Now we can analyze the best model parameter estimates. \
 `model_analysis1.ipynb`: Analyzes model parameter estimates. \
 `model_analyis2.ipynb`: Evaluates model validity using different performance metrics. \
