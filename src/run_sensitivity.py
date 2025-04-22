@@ -54,7 +54,7 @@ sp_mean = float(hyperparam_data['lambda'].iloc[0])
 sp_var = float(hyperparam_data['upsilon'].iloc[0])
 
 # Fixed parameters
-h_prop = 0.0  # No holdout
+h_prop = 0.1 # No holdout
 nsample_o = 200  # Number of posterior samples
 ninit = 50 # Number of initializations
 n_max_run = 12  # Limit parallel processes
