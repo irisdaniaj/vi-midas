@@ -34,8 +34,85 @@ python3 script_name.py
 - Extracts necessary values for model execution.
 
 ### 2. Generate Commands
-- Iterates through all model types (`mtype` from `0` to `5`) and seeds (`m_seed` from `0` to `19`).
+- Iterates through all model types (`mtype` ) and seeds (`m_seed` from `0` to `19`).
 - Checks if each model already exists before scheduling execution.
+
+| mtype  | Excluded component |
+|-------|-------------|
+|Original Data        |
+| 0    | No component exluced  |
+| 1    | Spatial: Province |
+| 2    | Spatial: Depth Layer |
+| 3    | Seasonal |
+| 4    | Environmental |
+| 5    | Species- Species Interaction |
+| 6    | All variables in the latent space |
+|New Data        |
+| 7    |All variables in the latent space |
+| 8    | No component exluced |
+| 9    | Species- species interaction |
+| 10   | Environmental|
+| 11   | Spatial: Province |
+| 12   | Spatial: Depth |
+| 13   | Seasonal |
+| 14   | Satellite |
+
+# Original Data 
+
+## Environmental Variables
+- Temperature (°C)
+- Salinity (PSU)
+- Oxygen (µmol/Kg)
+- NO2 (µmol/L)
+- PO4 (µmol/L)
+- NO2NO3 (µmol/L)
+- Si (µmol/L)
+- SST (°C)
+
+## Spatial Variables
+- Depth Layer
+- Province (Biome)
+
+## Seasonal Variable
+- Seasonal (Quarter)
+
+## Species-Species Interaction
+- Interaction coefficient
+
+# New data 
+## Environmental Variables
+- Temperature (°C)
+- Salinity (PSU)
+- Oxygen (µmol/Kg)
+- NO2 (µmol/L)
+- PO4 (µmol/L)
+- NO2NO3 (µmol/L)
+- Si (µmol/L)
+- SST (°C)
+- ChlorophyllA (mg/m³)
+- Carbon.total (µmol/L)
+
+## Spatial Variables
+- Depth Layer
+- Province (Biome)
+
+## Seasonal Variable
+- Seasonal (Quarter)
+
+## Species-Species Interaction
+- Interaction coefficient
+
+## Satellite-Derived Variables
+- Fluorescence (RFU)
+- Chl (mg/m³)
+- PAR (µmol photons m⁻² s⁻¹)
+- mld (m)
+- wind (m/s)
+- EKE (m²/s²)
+- Rrs490 (sr⁻¹)
+- Rrs510 (sr⁻¹)
+- Rrs555 (sr⁻¹)
+
 
 ### 3. Execute Commands in Parallel
 - Uses `ProcessPoolExecutor` to execute multiple tuning jobs simultaneously (up to `n_max_run`).
