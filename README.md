@@ -30,6 +30,10 @@ python generate_csv.py
 ```
 This script generates 50 random combinations of hyperparameters (`λ`, `ϑ`, and `k`) within specified ranges using random sampling and saves them to a CSV file named `hyperparams.csv`. It ensures reproducibility by setting a fixed random seed.
 
+### Exploratory Data Analysis 
+
+To reproduce our EDA results please refer to the `preprocessing_and_data` folder. 
+
 ### Hyperparameter tuning
 
 ```
