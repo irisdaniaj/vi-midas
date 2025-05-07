@@ -32,7 +32,7 @@ This script generates 50 random combinations of hyperparameters (`λ`, `ϑ`, and
 
 ### Exploratory Data Analysis 
 
-To reproduce our EDA results please refer to the `preprocessing_and_data` folder. 
+To reproduce our EDA results please refer to the `preprocessing_and_data` folder.  
 
 ### Hyperparameter tuning
 

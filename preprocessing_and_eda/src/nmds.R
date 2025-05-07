@@ -1,6 +1,6 @@
 
 # Set seed for reproducibility
-set.seed(1000000)
+set.seed(1111)
 
 getwd()
 
@@ -49,6 +49,7 @@ env <- left_join(environmental, Z_clean, by = "id")
 env$OceanRegionClean <- sub(".*\\] (.*?) \\(.*", "\\1", env$Ocean.region)
 
 # Merge with OTU table
+# we use this merged data for NMDS
 merged <- inner_join(env, motu, by = "id")
 
 # Identify OTU columns
@@ -71,8 +72,12 @@ merged$evenness <- ifelse(merged$richness > 0,
 
 # Normalize OTU table (relative abundance)
 otu_table <- otu_table[rowSums(otu_table) > 0, ]
-
 otu_relabund <- sweep(otu_table, 1, rowSums(otu_table), "/")
+
+keep_samples <- rowSums(otu_table) > 0
+otu_table <- otu_table[keep_samples, ]
+merged <- merged[keep_samples, ]
+
 
 # Bray-Curtis distance and NMDS
 bray_dist <- vegdist(otu_relabund, method = "bray")
@@ -116,3 +121,4 @@ print(adonis_biome)
 # Stress output
 cat("NMDS Stress:", round(nmds$stress, 3), "\n")
 
+stressplot(nmds)

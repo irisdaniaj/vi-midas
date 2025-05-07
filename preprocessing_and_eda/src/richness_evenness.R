@@ -5,6 +5,7 @@ getwd()
 #setwd("PUT/YOUR/PROJECT/PATH/HERE")
 
 
+
 dir.create("data", showWarnings = FALSE)
 dir.create("results", showWarnings = FALSE)
 
@@ -26,7 +27,7 @@ data_path <- "data"
 results_path <- "results"
 
 motu <- read_csv(file.path(data_path, "count_table.csv"))
-env <- read_csv(file.path(data_path, "geochemical.csv"))
+environmental <- read_csv(file.path(data_path, "geochemical.csv"))
 Z <- read_csv(file.path(data_path, "Z.csv"))
 
 
@@ -45,14 +46,14 @@ Z_clean <- Z %>%
   select(id, biome)  # Keep only 'id' and 'biome'
 
 # Merge with env on 'id'
-env <- left_join(envv, Z_clean, by = "id")
+env <- left_join(environmental, Z_clean, by = "id")
 
 # Clean up Ocean Region for plotting
 env$OceanRegionClean <- sub(".*\\] (.*?) \\(.*", "\\1", env$Ocean.region)
 
 # Ensure polar is a clean string- keep "polar" and "non polar"
-env$polar <- as.character(X$polar)
-env$polar <- ifelse(X$polar %in% c("polar", "non polar"), X$polar, NA)
+env$polar <- as.character(env$polar)
+env$polar <- ifelse(env$polar %in% c("polar", "non polar"), env$polar, NA)
 
 #View(env)
 intersect(env$id, motu$id)
@@ -79,7 +80,6 @@ otu_matrix <- merged[, motu_cols]
 otu_rel <- otu_matrix / rowSums(otu_matrix)
 
 # Shannon and richness
-library(vegan)
 merged$shannon <- diversity(otu_rel, index = "shannon")
 merged$evenness <- merged$shannon / log(merged$richness)
 
