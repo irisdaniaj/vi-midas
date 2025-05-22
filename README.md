@@ -16,7 +16,7 @@ We examined differences in environmental covariates, such as temperature, salini
 Building on the original methodology, we applied the VI-MIDAS framework to a newly assembled marine microbiome dataset. Both the direct coupling model (which links environmental covariates directly to microbial abundances) and the no direct coupling variant (which projects all covariates into a shared latent space) were evaluated. 
 
 ### Development and Evaluation of a Novel Modeling Variant
-We implemented a novel no direct coupling variant of VI-MIDAS (detailed in Section 3.1.3 of the report), which differs from the original model by projecting environmental covariates, along with spatiotemporal and interaction-based factors—into a shared latent space. This unified representation allowed for a more flexible and holistic interpretation of ecological patterns. We applied this model to both the original and the new datasets. 
+We implemented a novel no direct coupling variant of VI-MIDAS (detailed in Section 3.1.3 of the report), which differs from the original model by projecting environmental covariates, along with spatiotemporal and interaction-based factors, into a shared latent space. This unified representation allowed for a more flexible and holistic interpretation of ecological patterns. We applied this model to both the original and the new datasets. 
 
 ---
 ## Setup 
