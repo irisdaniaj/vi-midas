@@ -10,13 +10,13 @@ We successfully reproduced the results of the original VI-MIDAS model using the 
 
 ### Exploratory Data Analysis 
 Before modeling, we conducted an extensive exploratory data analysis that encompassed both the original VI-MIDAS dataset and our newly assembled microbiome dataset. The new dataset expanded the geographic and ecological coverage, particularly with additional samples from polar biomes, and incorporated a richer set of covariates, including satellite-derived environmental features.
-We examined differences in environmental covariates, such as temperature, salinity, and oxygen—between polar and non-polar samples. We visualized mOTU abundance profiles and observed ecological stratification across biomes and depth layers. 
+We examined differences in environmental covariates, such as temperature, salinity, and oxygen. We visualized mOTU abundance profiles and observed ecological stratification across biomes and depth layers. 
 
 ### Application of VI-MIDAS to a New Marine Microbiome Dataset
 Building on the original methodology, we applied the VI-MIDAS framework to a newly assembled marine microbiome dataset. Both the direct coupling model (which links environmental covariates directly to microbial abundances) and the no direct coupling variant (which projects all covariates into a shared latent space) were evaluated. 
 
 ### Development and Evaluation of a Novel Modeling Variant
-We implemented a novel no direct coupling variant of VI-MIDAS (detailed in Section 3.1.3 of the report), which differs from the original model by projecting environmental covariates—along with spatiotemporal and interaction-based factors—into a shared latent space. This unified representation allowed for a more flexible and holistic interpretation of ecological patterns. We applied this model to both the original and the new datasets. 
+We implemented a novel no direct coupling variant of VI-MIDAS (detailed in Section 3.1.3 of the report), which differs from the original model by projecting environmental covariates, along with spatiotemporal and interaction-based factors—into a shared latent space. This unified representation allowed for a more flexible and holistic interpretation of ecological patterns. We applied this model to both the original and the new datasets. 
 
 ---
 ## Setup 
