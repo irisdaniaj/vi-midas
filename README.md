@@ -3,6 +3,13 @@
 This repository contains code and documentation for reproducing the results of [VI-MIDAS](https://github.com/amishra-stats/vi-midas/tree/main). The project aims to use variational inference to jointly model microbial abundance data and environmental factors as well as species-species interaction. This guide will help you set up the environment, reproduce the results, and adapt the code to your data.
 
 ---
+## Contribution 
+
+1. We reproduced the results of [VI-MIDAS](https://github.com/amishra-stats/vi-midas/tree/main) on the same set of data.
+2. We applied the methodology presented in [VI-MIDAS](https://github.com/amishra-stats/vi-midas/tree/main) to a new dataset of microbiome data.
+3. We applied the a different methodology(as explained in section 3.1.3 of the report) to our data and the orignal data presented in [VI-MIDAS](https://github.com/amishra-stats/vi-midas/tree/main). 
+
+---
 ## Setup 
 
 Clone the repository 
@@ -83,9 +90,4 @@ For detailed information about the scripts, their functionality, and usage, plea
 The experiments were conducted on a high-performance computing cluster with 1 node per job, each node equipped with 76 CPU cores, 512 GB RAM, and 8 NVIDIA Tesla V100 GPUs (16 GB HBM2 memory each). Jobs utilized 1 GPU, 2 CPU cores, and 10 GB of memory. Reproducing these results requires similar hardware and resource configurations to ensure comparable performance and outcomes.
 
 ---
-## Queries
-Please contact authors and creators for any queries related to using the analysis 
 
-
--   Aditya Mishra: [mailto](mailto:amishra@flatironinstitute.org)
--   Christian Mueller: [mailto](mailto:cmueller@flatironinstitute.org)
