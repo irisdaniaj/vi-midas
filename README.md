@@ -5,10 +5,14 @@ This repository contains code and documentation for reproducing the results of [
 ---
 ## Contribution 
 
-1. We reproduced the results of [VI-MIDAS](https://github.com/amishra-stats/vi-midas/tree/main) on the same set of data.
-2. We applied the methodology presented in [VI-MIDAS](https://github.com/amishra-stats/vi-midas/tree/main) to a new dataset of microbiome data.
-3. We applied the a different methodology(as explained in section 3.1.3 of the report) to our data and the orignal data presented in [VI-MIDAS](https://github.com/amishra-stats/vi-midas/tree/main). 
+### Reproduction of Original VI-MIDAS Results
+We successfully reproduced the results of the original VI-MIDAS model using the same dataset and model configurations described by [Mishra et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.03.18.585474v1). This involved modeling overdispersed microbial abundance data using a Negative Binomial likelihood and integrating both direct environmental covariates and latent space components for spatiotemporal factors and taxon-taxon interactions. The reproduction confirmed the original model's predictive accuracy and ecological interpretability.
 
+### Application of VI-MIDAS to a New Marine Microbiome Dataset
+Building on the original methodology, we applied the VI-MIDAS framework to a newly assembled marine microbiome dataset. This extended dataset included additional samples,particularly from polar biomes, and enriched covariate information, such as satellite-derived environmental features. Both the direct coupling model (which links environmental covariates directly to microbial abundances) and the no direct coupling variant (which projects all covariates into a shared latent space) were evaluated. 
+
+### Development and Evaluation of a Novel Modeling Variant
+We implemented a novel no direct coupling variant of VI-MIDAS (detailed in Section 3.1.3 of the report), which differs from the original model by projecting environmental covariates—along with spatiotemporal and interaction-based factors—into a shared latent space. This unified representation allowed for a more flexible and holistic interpretation of ecological patterns. We applied this model to both the original and the new datasets. 
 ---
 ## Setup 
 
