@@ -6,7 +6,7 @@ This repository contains code and documentation for reproducing the results of [
 ## Contribution 
 
 ### Reproduction of Original VI-MIDAS Results
-We successfully reproduced the results of the original VI-MIDAS model using the same dataset and model configurations described by [Mishra et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.03.18.585474v1). This involved modeling overdispersed microbial abundance data using a Negative Binomial likelihood and integrating both direct environmental covariates and latent space components for spatiotemporal factors and taxon-taxon interactions. The reproduction confirmed the original model's predictive accuracy and ecological interpretability.
+We successfully reproduced the results of the original VI-MIDAS model using the same dataset and model configurations described by [Mishra et al. (2024)](https://www.biorxiv.org/content/10.1101/2024.03.18.585474v1). This involved modeling overdispersed microbial abundance data using a Negative Binomial likelihood and integrating both direct environmental covariates and latent space components for spatiotemporal factors and taxon-taxon interactions. 
 
 ### Exploratory Data Analysis 
 Before modeling, we conducted an extensive exploratory data analysis that encompassed both the original VI-MIDAS dataset and our newly assembled microbiome dataset. The new dataset expanded the geographic and ecological coverage, particularly with additional samples from polar biomes, and incorporated a richer set of covariates, including satellite-derived environmental features.
